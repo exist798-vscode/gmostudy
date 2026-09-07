@@ -12,6 +12,6 @@
    앱은 기존처럼 PDF 저장만 되는 오프라인 모드로 동작한다.
    ============================================================ */
 window.GMO_CONFIG = {
-  submitUrl: "",
+  submitUrl: "https://script.google.com/macros/s/AKfycbzbHlyDZ4MZeHHbXdGrx7DxOfc-YI9FRMqhQb4-rWJQRiVevFcDiWiyJVWgj67E-UqWzA/exec",
   token: ""
 };
