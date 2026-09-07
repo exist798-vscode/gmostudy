@@ -177,6 +177,34 @@
   .fragment{ opacity:0; transition:opacity .35s ease; }
   .fragment.visible{ opacity:1; }
 
+  /* ===== 필기(잉크) 레이어 ===== */
+  #ink{ position:fixed; inset:0; z-index:40; pointer-events:none; }
+  #surface{ position:fixed; inset:0; z-index:45; touch-action:none; -webkit-user-select:none; user-select:none; }
+  #surface.draw{ cursor:crosshair; }
+  .tools{
+    position:fixed; left:2.4vw; bottom:2.2vh; z-index:100;
+    display:flex; flex-wrap:wrap; align-items:center; gap:.7vw; max-width:72vw;
+    background:var(--surface); border:1px solid var(--line); border-radius:12px;
+    padding:.9vh 1vw; box-shadow:0 4px 14px rgba(0,0,0,.14);
+  }
+  .tools button{
+    font-family:var(--font-body); font-size:1.55vh; font-weight:700; cursor:pointer; line-height:1;
+    background:transparent; border:1px solid var(--line); color:var(--subtext);
+    border-radius:8px; padding:.8vh 1.1vw; min-height:3.6vh;
+  }
+  .tools button.nav{ font-family:var(--font-data); font-size:2.2vh; padding:.4vh 1vw; }
+  .tools button.on{ background:var(--accent); color:#fff; border-color:var(--accent); }
+  .tools .sw{ width:2.8vh; height:2.8vh; border-radius:50%; border:2px solid var(--line); cursor:pointer; padding:0; }
+  .tools .sw.on{ border-color:var(--text); box-shadow:0 0 0 2px var(--accent); }
+  .tools .sw.c-red{ background:#e11d48; } .tools .sw.c-blue{ background:#2563eb; } .tools .sw.c-ink{ background:#18181b; }
+  .tools .sep{ width:1px; align-self:stretch; background:var(--line); margin:0 .2vw; }
+  .inkhint{
+    position:fixed; left:50%; bottom:10vh; transform:translateX(-50%); z-index:100; pointer-events:none;
+    font-family:var(--font-data); font-size:1.6vh; color:var(--subtext);
+    background:var(--surface); border:1px solid var(--line); border-radius:999px; padding:.9vh 1.8vw;
+    transition:opacity .6s ease;
+  }
+
   /* ===== 크롬 (나가기 · 카운터) ===== */
   .exit{
     position:fixed; top:2.4vh; right:2.4vw; z-index:100;
@@ -196,6 +224,24 @@
 <button class="exit" id="exit" type="button">✕ 나가기</button>
 <div class="progress" id="progress"></div>
 <div class="counter" id="counter"></div>
+
+<canvas id="ink"></canvas>
+<div id="surface"></div>
+
+<div class="tools" id="tools">
+  <button class="nav" id="tPrev" type="button" aria-label="이전">‹</button>
+  <button class="nav" id="tNext" type="button" aria-label="다음">›</button>
+  <span class="sep"></span>
+  <button class="sw c-red"  type="button" data-color="#e11d48" aria-label="빨강 펜"></button>
+  <button class="sw c-blue" type="button" data-color="#2563eb" aria-label="파랑 펜"></button>
+  <button class="sw c-ink on" type="button" data-color="#18181b" aria-label="검정 펜"></button>
+  <span class="sep"></span>
+  <button id="tEraser" type="button">지우개</button>
+  <button id="tClear" type="button">이 장 지움</button>
+  <span class="sep"></span>
+  <button id="tFinger" type="button">✎ 손가락 필기</button>
+</div>
+<div class="inkhint" id="inkhint">펜슬로 필기 · 손가락으로 옆으로 넘기기</div>
 
 <!-- 1 · 표지 -->
 <section class="slide dark cover">
@@ -493,24 +539,23 @@
   var counter  = document.getElementById("counter");
   var progress = document.getElementById("progress");
 
+  /* ---------------- 슬라이드 네비게이션 ---------------- */
   function frags(s){ return [].slice.call(s.querySelectorAll(".fragment:not(.visible)")); }
   function visibleFrags(s){ return [].slice.call(s.querySelectorAll(".fragment.visible")); }
 
   function render(){
     slides.forEach(function(s,i){ s.classList.toggle("active", i === cur); });
     counter.textContent = (cur + 1) + " / " + slides.length;
-    progress.style.width = ((cur) / (slides.length - 1) * 100) + "%";
+    progress.style.width = (cur / (slides.length - 1) * 100) + "%";
+    redraw();
   }
-
   function next(){
-    var s = slides[cur];
-    var f = frags(s);
+    var s = slides[cur], f = frags(s);
     if(f.length){ f[0].classList.add("visible"); return; }
     if(cur < slides.length - 1){ cur++; render(); }
   }
   function prev(){
-    var s = slides[cur];
-    var v = visibleFrags(s);
+    var s = slides[cur], v = visibleFrags(s);
     if(v.length){ v[v.length - 1].classList.remove("visible"); return; }
     if(cur > 0){ cur--; render(); }
   }
@@ -522,10 +567,108 @@
     else if(e.key === "End"){ e.preventDefault(); cur = slides.length - 1; render(); }
   });
 
-  // 태블릿: 화면 좌/우 터치로 이동 (나가기 버튼 영역 제외)
-  document.addEventListener("click", function(e){
-    if(e.target.closest("#exit")) return;
-    if(e.clientX > window.innerWidth * 0.5) next(); else prev();
+  /* ---------------- 필기(잉크) + 스와이프 ---------------- */
+  var canvas  = document.getElementById("ink");
+  var surface = document.getElementById("surface");
+  var ctx = canvas.getContext("2d");
+  var dpr = 1;
+  var ann = {};                 // 슬라이드별 획: {idx: [ {color,size,erase,pts:[{x,y}]} ]}
+  var penColor = "#18181b";
+  var penSize  = 3;
+  var eraseMode = false;
+  var fingerDraw = false;        // 켜면 손가락/마우스로도 필기 (펜슬은 항상 필기)
+
+  function sizeCanvas(){
+    dpr = Math.max(1, window.devicePixelRatio || 1);
+    canvas.width  = Math.round(window.innerWidth  * dpr);
+    canvas.height = Math.round(window.innerHeight * dpr);
+    canvas.style.width  = window.innerWidth  + "px";
+    canvas.style.height = window.innerHeight + "px";
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    redraw();
+  }
+  function drawStroke(st){
+    if(!st.pts.length) return;
+    ctx.save();
+    ctx.lineCap = "round"; ctx.lineJoin = "round";
+    ctx.globalCompositeOperation = st.erase ? "destination-out" : "source-over";
+    ctx.strokeStyle = st.erase ? "rgba(0,0,0,1)" : st.color;
+    ctx.lineWidth = st.size;
+    ctx.beginPath();
+    ctx.moveTo(st.pts[0].x, st.pts[0].y);
+    for(var i=1;i<st.pts.length;i++){ ctx.lineTo(st.pts[i].x, st.pts[i].y); }
+    if(st.pts.length === 1){ ctx.lineTo(st.pts[0].x + 0.1, st.pts[0].y + 0.1); }
+    ctx.stroke();
+    ctx.restore();
+  }
+  function redraw(){
+    ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
+    var list = ann[cur] || [];
+    for(var i=0;i<list.length;i++){ drawStroke(list[i]); }
+  }
+
+  var drawing = false, stroke = null, swipe = null;
+  function shouldDraw(e){ return e.pointerType === "pen" || fingerDraw; }
+  function endDraw(){ drawing = false; stroke = null; }
+
+  surface.addEventListener("pointerdown", function(e){
+    if(shouldDraw(e)){
+      drawing = true;
+      var w = penSize;
+      if(e.pointerType === "pen" && e.pressure){ w = penSize * (0.5 + e.pressure); }
+      stroke = { color: penColor, size: eraseMode ? 30 : w, erase: eraseMode, pts: [{x:e.clientX, y:e.clientY}] };
+      (ann[cur] || (ann[cur] = [])).push(stroke);
+      try{ surface.setPointerCapture(e.pointerId); }catch(_){}
+      redraw();
+      e.preventDefault();
+    } else {
+      swipe = { x:e.clientX, y:e.clientY, t:Date.now() };
+    }
+  });
+  surface.addEventListener("pointermove", function(e){
+    if(!drawing || !stroke) return;
+    var evs = e.getCoalescedEvents ? e.getCoalescedEvents() : [e];
+    for(var i=0;i<evs.length;i++){ stroke.pts.push({x:evs[i].clientX, y:evs[i].clientY}); }
+    redraw();
+    e.preventDefault();
+  });
+  surface.addEventListener("pointerup", function(e){
+    if(drawing){ endDraw(); return; }
+    if(!swipe) return;
+    var dx = e.clientX - swipe.x, dy = e.clientY - swipe.y, dt = Date.now() - swipe.t;
+    swipe = null;
+    if(Math.abs(dx) >= 55 && Math.abs(dx) > Math.abs(dy) * 1.3 && dt <= 900){
+      if(dx < 0){ next(); } else { prev(); }          // 왼쪽으로 밀기 → 다음
+    } else if(Math.abs(dx) < 12 && Math.abs(dy) < 12){
+      if(e.clientX > window.innerWidth * 0.5){ next(); } else { prev(); }   // 가벼운 탭
+    }
+  });
+  surface.addEventListener("pointercancel", function(){ endDraw(); swipe = null; });
+
+  /* ---------------- 툴바 ---------------- */
+  document.getElementById("tPrev").addEventListener("click", prev);
+  document.getElementById("tNext").addEventListener("click", next);
+
+  var swatches = [].slice.call(document.querySelectorAll(".tools .sw"));
+  swatches.forEach(function(b){
+    b.addEventListener("click", function(){
+      penColor = b.getAttribute("data-color");
+      eraseMode = false;
+      document.getElementById("tEraser").classList.remove("on");
+      swatches.forEach(function(x){ x.classList.toggle("on", x === b); });
+    });
+  });
+  document.getElementById("tEraser").addEventListener("click", function(){
+    eraseMode = !eraseMode;
+    this.classList.toggle("on", eraseMode);
+  });
+  document.getElementById("tClear").addEventListener("click", function(){
+    ann[cur] = []; redraw();
+  });
+  document.getElementById("tFinger").addEventListener("click", function(){
+    fingerDraw = !fingerDraw;
+    this.classList.toggle("on", fingerDraw);
+    surface.classList.toggle("draw", fingerDraw);
   });
 
   document.getElementById("exit").addEventListener("click", function(){
@@ -533,6 +676,13 @@
     setTimeout(function(){ window.location.href = "reading.html"; }, 120);
   });
 
+  window.addEventListener("resize", sizeCanvas);
+  window.addEventListener("orientationchange", function(){ setTimeout(sizeCanvas, 250); });
+
+  var hint = document.getElementById("inkhint");
+  setTimeout(function(){ if(hint){ hint.style.opacity = "0"; setTimeout(function(){ if(hint) hint.remove(); }, 700); } }, 4500);
+
+  sizeCanvas();
   render();
 })();
 </script>
