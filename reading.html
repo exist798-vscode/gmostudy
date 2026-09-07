@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>GMO 원문 읽기 — 유전자조작 식품을 먹어도 될까?</title>
+<style>
+  :root{
+    --pro:#1b7f4b;      /* 찬성 */
+    --pro-bg:#e9f6ee;
+    --con:#c0392b;      /* 반대 */
+    --con-bg:#fdeceb;
+    --ink:#1c2430;
+    --muted:#5b6675;
+    --line:#c9d2dd;
+    --accent:#2d5bd6;
+    --paper:#ffffff;
+    --bg:#eef1f5;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    font-family:-apple-system,"Apple SD Gothic Neo","Noto Sans KR","Malgun Gothic",Roboto,sans-serif;
+    background:var(--bg);
+    color:var(--ink);
+    font-size:17px;
+    line-height:1.85;
+    -webkit-text-size-adjust:100%;
+  }
+
+  /* 상단 고정 바 */
+  .topbar{
+    position:sticky;top:0;z-index:30;
+    background:rgba(255,255,255,.96);backdrop-filter:blur(6px);
+    border-bottom:1px solid var(--line);
+    display:flex;align-items:center;gap:10px;
+    padding:10px 16px calc(10px);
+  }
+  .topbar .title{font-weight:800;font-size:.95rem;color:var(--muted);margin-right:auto;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .back{
+    display:inline-flex;align-items:center;gap:6px;
+    font:inherit;font-weight:700;font-size:.9rem;text-decoration:none;cursor:pointer;
+    background:var(--accent);color:#fff;border:none;border-radius:10px;
+    padding:9px 15px;min-height:42px;white-space:nowrap;
+    box-shadow:0 3px 10px rgba(45,91,214,.28);
+  }
+  .back:active{transform:translateY(1px)}
+  .back.ghost{background:#fff;color:var(--muted);border:1px solid var(--line);box-shadow:none}
+
+  .wrap{max-width:760px;margin:0 auto;padding:20px 18px 130px}
+
+  header.doc{
+    background:linear-gradient(135deg,#2d5bd6,#3aa0c9);
+    color:#fff;border-radius:16px;padding:22px 22px;
+    box-shadow:0 6px 20px rgba(45,91,214,.25);
+  }
+  header.doc h1{margin:0;font-size:1.4rem;line-height:1.45}
+  header.doc p{margin:8px 0 0;opacity:.95;font-size:.95rem;line-height:1.6}
+
+  /* 목차 */
+  .toc{
+    background:var(--paper);border:1px solid var(--line);border-radius:14px;
+    padding:14px 16px;margin-top:16px;box-shadow:0 2px 8px rgba(20,30,50,.05);
+  }
+  .toc h2{margin:0 0 8px;font-size:.95rem;color:var(--muted)}
+  .toc ol{margin:0;padding-left:20px}
+  .toc li{margin:4px 0}
+  .toc a{color:var(--accent);text-decoration:none}
+  .toc a:active{text-decoration:underline}
+  .toc .g-pro{color:var(--pro);font-weight:700}
+  .toc .g-con{color:var(--con);font-weight:700}
+
+  section.block{
+    background:var(--paper);border:1px solid var(--line);border-radius:14px;
+    padding:18px 18px 6px;margin-top:18px;box-shadow:0 2px 8px rgba(20,30,50,.05);
+    scroll-margin-top:70px;
+  }
+  section.block > h2{
+    margin:0 0 10px;font-size:1.15rem;padding-left:12px;border-left:5px solid var(--accent);
+  }
+  section.pro > h2{border-left-color:var(--pro)}
+  section.con > h2{border-left-color:var(--con)}
+
+  .stance-badge{
+    display:inline-block;font-weight:800;font-size:.85rem;letter-spacing:.02em;
+    padding:4px 12px;border-radius:999px;margin-bottom:6px;
+  }
+  .stance-badge.pro{background:var(--pro-bg);color:var(--pro)}
+  .stance-badge.con{background:var(--con-bg);color:var(--con)}
+  .stance-lead{font-weight:800;font-size:1.05rem;margin:2px 0 14px}
+  section.pro .stance-lead{color:var(--pro)}
+  section.con .stance-lead{color:var(--con)}
+
+  h3.arg{
+    margin:22px 0 8px;font-size:1.02rem;font-weight:800;
+    padding:8px 12px;border-radius:10px;
+  }
+  section.pro h3.arg{background:var(--pro-bg);color:var(--pro)}
+  section.con h3.arg{background:var(--con-bg);color:var(--con)}
+
+  section.block p{margin:0 0 14px}
+
+  .story{
+    background:#fbfcfe;border:1px solid var(--line);border-radius:12px;
+    padding:14px 16px;margin:0 0 14px;
+  }
+  .story p{margin:0 0 10px}
+  .story p:last-child{margin-bottom:0}
+  .story .q{color:var(--muted);font-style:italic}
+
+  .think-q{
+    margin-top:14px;background:#eef2fb;border:1px solid #d5e0f7;border-radius:12px;
+    padding:12px 16px 12px;
+  }
+  .think-q h3{margin:0 0 6px;font-size:.95rem;color:var(--accent)}
+  .think-q ol{margin:0;padding-left:20px}
+  .think-q li{margin:4px 0}
+
+  aside.note{
+    border:1px dashed var(--con);background:#fff;border-radius:12px;
+    padding:12px 14px;margin:0 0 14px;font-size:.92rem;color:var(--muted);
+  }
+  aside.note b{color:var(--con)}
+
+  .src{max-width:760px;margin:16px auto 0;font-size:.8rem;color:var(--muted);text-align:center}
+
+  /* 하단 고정 바 */
+  .bottombar{
+    position:fixed;left:0;right:0;bottom:0;z-index:20;
+    background:rgba(255,255,255,.96);backdrop-filter:blur(6px);
+    border-top:1px solid var(--line);
+    padding:12px 16px calc(12px + env(safe-area-inset-bottom));
+    display:flex;gap:10px;align-items:center;justify-content:center;flex-wrap:wrap;
+  }
+  .bottombar .back{padding:14px 22px;min-height:52px;font-size:1rem;border-radius:12px}
+  .toTop{
+    font:inherit;font-weight:700;background:#fff;border:1px solid var(--line);color:var(--muted);
+    border-radius:12px;padding:14px 18px;min-height:52px;cursor:pointer;
+  }
+
+  @media print{
+    @page{size:A4 portrait;margin:16mm}
+    body{background:#fff;font-size:11pt;line-height:1.6}
+    .topbar,.bottombar,.toc,.src{display:none !important}
+    .wrap{max-width:none;padding:0}
+    header.doc{background:none;color:#000;box-shadow:none;border:0;border-bottom:2px solid #000;border-radius:0;padding:0 0 8pt}
+    section.block{border:0;box-shadow:none;padding:0;margin-top:14pt;page-break-inside:auto}
+    section.block > h2{border-left:0;padding-left:0}
+    h3.arg{background:none !important;color:#000 !important;padding:0;border-bottom:1px solid #000}
+    .story,.think-q,aside.note{border:1px solid #000;background:none}
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <span class="title">GMO 원문 읽기</span>
+  <a class="back" href="index.html" id="backTop">← 돌아가기</a>
+</div>
+
+<div class="wrap">
+
+  <header class="doc">
+    <h1>유전자조작 식품을 먹어도 될까?</h1>
+    <p>학습지를 쓰기 전에 아래 글을 읽고, 찬성과 반대가 어떤 근거를 드는지 살펴보세요.
+       다 읽으면 <b>‘돌아가기’</b>를 눌러 학습지로 돌아갑니다.</p>
+  </header>
+
+  <nav class="toc">
+    <h2>차례</h2>
+    <ol>
+      <li><a href="#open">생각 열기 — 안심해와 의심해의 편의점</a></li>
+      <li><a href="#pro" class="g-pro">찬성 “그래, 유전자조작 식품을 먹어도 돼”</a>
+        <ol>
+          <li><a href="#pro-1">안전성 — 안전해</a></li>
+          <li><a href="#pro-2">환경과 경제 — 큰 이익을 줘</a></li>
+          <li><a href="#pro-3">식량 문제 — 해결할 수 있어</a></li>
+          <li><a href="#pro-4">먹거리 선택권 — 침해하지 않아</a></li>
+        </ol>
+      </li>
+      <li><a href="#con" class="g-con">반대 “아니야, 유전자조작 식품을 먹으면 안 돼”</a>
+        <ol>
+          <li><a href="#con-1">안전성 — 안전하지 않아</a></li>
+          <li><a href="#con-2">환경과 경제 — 자연과 생명의 질서를 파괴해</a></li>
+          <li><a href="#con-3">식량 문제 — 해결해 줄 수 없어</a></li>
+          <li><a href="#con-4">먹거리 선택권 — 침해해</a></li>
+        </ol>
+      </li>
+    </ol>
+  </nav>
+
+  <!-- ===================== 생각 열기 ===================== -->
+  <section class="block" id="open">
+    <h2>생각 열기</h2>
+    <div class="story">
+      <p>안심해와 의심해는 축구 시합이 끝나고 목이 말라 음료수를 사러 편의점에 들렀어요. 안심해가 콜라를 사자 의심해가 말렸어요.</p>
+      <p class="q">“탄산음료 나쁜 거 몰라? 나는 두유 마셔야지.”</p>
+      <p>안심해는 시큰둥하게 대답했어요.</p>
+      <p class="q">“두유도 나쁠걸? 그 두유 네가 무서워하는 유전자조작 콩으로 만들었을지도 몰라.”</p>
+      <p>의심해는 화들짝 놀라 뒤쪽에 붙은 식품 표시 성분을 읽었어요.</p>
+      <p class="q">“어디 보자, 정말 수입 콩이네. 혹시 유전자조작 콩일지 모르니까 유기농 두유나 국산 콩 100퍼센트 두유를 사야겠다.”</p>
+      <p>의심해는 편의점에 있는 두유를 하나씩 다 살펴보기 시작했어요.</p>
+      <p class="q">“이건 액상과당이 들어 있네. 과당은 유전자조작 옥수수로 만든다던데……. 근데 콜라에도 들어 있었어! 콜라 마시지 말라니까!”</p>
+      <p class="q">“야, 너 너무 깐깐해! 그리고 그거 엄청 비싼데 진짜 살 거야?”</p>
+      <p class="q">“비싸도 할 수 없지. 네가 유전자조작 식품이 얼마나 해로운지 몰라서 그래. 나처럼 알레르기로 고생하면 생각이 바뀔걸?”</p>
+      <p>의심해가 시무룩하게 말하자 안심해가 웃으면서 대꾸했어요.</p>
+      <p class="q">“비싼 돈 내면서 몸에 좋은지 나쁜지 따지느라 스트레스 받느니 난 그냥 콜라 맛있게 먹고 축구 한 판 더 뛸래. 그게 진짜 건강해지는 비결이라고.”</p>
+    </div>
+    <div class="think-q">
+      <h3>생각해 보기</h3>
+      <ol>
+        <li>안심해와 의심해의 말 중에 더 공감이 가는 것은 누구의 말인가요?</li>
+        <li>오늘 하루 동안 먹은 음식을 떠올려 보고 그중에 유전자조작 콩이나 옥수수가 들어간 음식이 있는지 알아봅시다.</li>
+      </ol>
+    </div>
+  </section>
+
+  <!-- ===================== 찬성 ===================== -->
+  <section class="block pro" id="pro">
+    <span class="stance-badge pro">찬성</span>
+    <div class="stance-lead">“그래, 유전자조작 식품을 먹어도 돼”</div>
+
+    <h3 class="arg" id="pro-1">1. 유전자조작 식품은 안전해</h3>
+    <p>여러분이 노릇노릇하게 구운 두부를 한입 먹었는데, “그 두부는 유전자조작 콩으로 만든 거예요. 그리고 유전자조작 카놀라에서 짜낸 기름으로 구웠답니다.”라는 말을 들으면 기분이 어떨까요? 괜히 찜찜해서 더 이상 먹기가 싫을 거예요. 여기저기에서 유전자조작 식품에 문제가 있다는 말을 들었기 때문이죠. 하지만 유전자조작 식품에는 아무런 문제가 없습니다. 인간이 유전자조작 식품을 먹기 시작한 지도 벌써 20년이 지났어요. 그런데 그동안 이걸 먹고 죽거나 큰 병에 걸린 사람은 아무도 없습니다.</p>
+    <p>결론부터 말하자면 유전자조작 식품은 우리 몸에 해롭지 않아요. 첫째, 유전자조작은 우리 조상들이 수천 년 동안 논과 밭에서 해 온 일과 다르지 않기 때문에 안전합니다. 우리가 지금 먹는 곡식, 과일, 채소 등은 모두 야생에서 왔습니다. 야생 곡식은 낟알이 한두 개만 열리는 것도 많기 때문에 농부들은 어쩌다 낟알이 많이 열리거나 가뭄에도 살아남은 곡식이나 과일을 따로 모아 심었어요. 그리고 붓으로 꽃가루를 옮겨 가며 교배를 시켰어요. 이렇게 하기까지 수십 년이 걸리는 일도 많았지요. 그러나 요새는 실험실에서 유전자조작을 통해 쉽고 빠르게 원하는 품종을 얻을 수 있어요. 농부가 하던 일을 과학자, 생명공학자가 대신하는 건데 그게 과연 위험할까요? 어떤 품종이 나올지 모르는 농부의 교배보다 오히려 더 정확하고 안전한 방법 아닐까요?</p>
+    <p>둘째, 유전자조작 식품은 개발할 때부터 안전에 엄청난 신경을 쓰기 때문에 걱정할 필요가 없습니다. 조금이라도 독성이 있을 것 같으면 더 이상 개발하지 않고, 개발하고 난 후에도 연구소에서 철저하게 검사를 하지요. 게다가 소비자들의 손에 들어가기 전에 다시 한 번 미국의 식약청(FDA)이나 우리나라의 식품의약품안전처 등과 같은 기관에서 엄격한 검사를 받기 때문에 아무런 검사도 받지 않고 식탁에 오르는 다른 식품들보다 오히려 더 안전합니다.</p>
+    <p>셋째, 유전자조작 식품이 위험하다고 주장하는 실험 결과들이 모두 문제가 있다고 밝혀졌기 때문에 불안해할 필요가 없습니다. 1998년 영국의 푸스타이 박사는 유전자조작 감자를 쥐에게 먹였더니 독성 물질로 장기가 손상되었다고 발표했어요. 그러나 다른 연구자들이 똑같은 실험을 하자 결과가 달랐다고 해요. 2005년 러시아의 에르마코바 박사도 유전자조작 콩을 먹은 쥐의 사망률이 6배나 높았다고 주장했지요. 하지만 세계적인 과학 잡지인 〈네이처〉는 신뢰성이 낮다고 이 논문을 실어 주지 않았어요. 2012년 프랑스의 세랄리니 교수도 유전자조작 옥수수를 먹은 쥐에게 엄청난 크기의 종양이 발생했다며 호들갑을 떨었지요. 그러나 유럽식품안전청은 연구 과정에 문제가 있다고 밝혔어요.</p>
+    <p>유전자조작 식품에 문제가 있다는 논문이 지난 20여 년간 900여 편이나 등장했지만 믿을 만한 유명한 학술지에 실린 논문은 단 한 편도 없습니다. 이 사실만 봐도 유전자조작 식품이 해롭다는 주장은 과학적 근거가 없다는 걸 알 수 있어요. 따라서 안심하고 먹어도 됩니다.</p>
+
+    <h3 class="arg" id="pro-2">2. 유전자조작 식품은 환경과 경제에 큰 이익을 줘</h3>
+    <p>지난 2000년, 최첨단 기술로 새로운 예술 작품을 창조하고 싶었던 브라질의 예술가 에두아르도 카츠는 프랑스의 생명공학 연구소와 함께 해파리의 형광 유전자를 흰 토끼 유전자에 끼워 넣었습니다. 어둠 속에서도 빛나는 녹색 형광 토끼를 탄생시킨 거예요. 유전자조작 식품의 원리도 똑같아요. 열매가 많이 열리고 해충과 비바람에 강한 유전자를 콩이나 옥수수에 조합해 더 튼튼하고 수확량이 많은 콩과 옥수수를 만드는 첨단 생명공학이지요.</p>
+    <p>농부들은 그동안 많은 농약과 비료, 제초제와 살충제를 사용해 농사를 지었어요. 하지만 유전자조작 곡식과 채소를 기르면 이런 독한 화학제품들을 사용하지 않아도 되기 때문에 여러 가지 좋은 점이 있습니다. 우선 환경오염이 크게 줄어들어요. 땅과 물을 오염시키는 독한 화학제품을 사용하지 않아도 되기 때문이죠. 또 잡초를 뽑고 벌레를 잡지 않아도 쑥쑥 크기 때문에 농부들의 일손도 덜어 줍니다. 게다가 제품이 쉽게 썩거나 무르지 않기 때문에 저장하고 운반하고 판매하는 데 드는 비용도 줄어들지요. 이처럼 생산 비용과 유통비용이 줄어들기 때문에 농부는 이익을 많이 남길 수 있어 좋고 소비자는 싼값에 좋은 물건을 살 수 있어 경제에 활력이 생깁니다.</p>
+    <p>유전자조작이 우리에게 주는 또 하나의 선물은 바이오 연료입니다. 예를 들어 유전자조작 옥수수를 발효해 바이오 에탄올을 만들면 자동차 연료로 쓸 수 있어요. 오염 물질이 배출되지 않는 친환경 바이오 에너지는 지구와 환경을 살릴 수 있는 효자 에너지예요. 게다가 바이오 에너지는 생명공학과 마찬가지로 우리나라에 커다란 경제적 이득을 가져다줄 수 있는 첨단 기술이지요. 자원이 별로 없는 우리나라는 그동안 자동차나 휴대폰을 수출해 경제를 성장시켜 왔는데 요새는 중국과 일본 사이에 끼어 어려움을 겪고 있어요. 이럴 때일수록 생명공학이나 인공지능 같은 첨단 기술을 발전시켜야 해요. 그래서 정부에서도 더 많은 기업들이 투자와 연구를 하도록 격려하고 있어요.</p>
+
+    <h3 class="arg" id="pro-3">3. 유전자조작 식품은 식량문제를 해결할 수 있어</h3>
+    <p>유전자조작 식품은 굶주림과 영양실조에 허덕이는 많은 사람들을 구해 줄 수 있습니다. 유엔식량농업기구가 펴낸 ‘2015 세계 식량 불안정 상황’이라는 보고서는 “전 세계에서 건강한 삶을 살아갈 만큼 충분한 음식을 섭취하지 못하는 인구가 7억 9천500만 명”이라고 밝혔어요. 심지어 2015년 사망한 어린이 약 590만 명 중에 절반이 넘는 어린이가 영양실조로 사망했지요. 여러분은 투덜거리며 반찬 투정을 하는데 아프리카에선 10초마다 한 명의 어린이가 굶어 죽고 있는 거예요. 이유는 단 하나, 먹을 것이 모자라기 때문입니다.</p>
+    <p>인구는 점점 증가하는데 식량 생산이 이를 따라잡지 못하고 있어요. 더구나 지구온난화와 기상이변으로 툭하면 홍수와 가뭄, 폭염과 추위가 전 지구를 덮쳐 식량 생산량이 늘기는커녕 오히려 줄어들고 있지요. 그러다 보니 세계 곡물 가격이 갑자기 치솟는 바람에 먹거리에 대한 불안감이 커지고 있기도 하고요. 결국 유전자조작 식품으로 해결할 수밖에 없는 거예요.</p>
+    <p>평범한 곡식과 달리 유전자조작 곡식은 해충이나 가뭄에도 잘 자라고 수확량이 많습니다. 그래서 식량을 더 많이 안정적으로 공급할 수 있어요. 게다가 다양한 유전자를 끼워 넣어 영양 성분을 강화시킬 수 있으니 일석이조인 셈이죠. 2000년 스위스의 과학자들은 수선화와 미생물의 유전자를 조합해 비타민A가 들어 있는 황금쌀을 만들었어요. 이 쌀을 먹으면 해마다 비타민 A가 부족해 시력을 잃고 실명하는 가난한 나라의 어린이 50만 명을 구할 수 있답니다.</p>
+    <p>유전자조작을 반대하는 사람들은 식량은 충분한데 골고루 분배되지 않는 게 문제라고 주장합니다. 그러나 식량을 나누는 문제는 정치적, 경제적으로 해결해야 할 일이 많아 시간이 너무 오래 걸려요. 그동안 굶주리는 사람들을 그냥 방치할 수는 없습니다.</p>
+    <p>설사 식량이 충분하다 해도 유전자조작 식품을 반대할 이유는 전혀 없어요. 식량은 많으면 많을수록 좋으니까요. 유전자조작 식품 덕분에 식량 가격이 떨어져 누구라도 배불리 먹을 수 있게 될 거예요.</p>
+
+    <h3 class="arg" id="pro-4">4. 유전자조작 식품은 먹거리 선택권을 침해하지 않아</h3>
+    <p>많은 사람들이 자기도 모르는 사이에 원하지도 않는 유전자조작 식품을 먹게 되니까 유전자조작 식품을 금지해야 한다고 주장해요. 먹거리 선택권을 침해당하고 있다는 것이지요. 하지만 이런 문제는 유전자조작 식품 표시제를 통해 얼마든지 해결할 수 있어요. 지금도 우리나라 식품위생법은 유전자조작 식품인지 아닌지 제품에 표시하도록 정해 놓고 있지요. 간장이나 식용유, 술 등에는 표시가 안 되고 있다고 항의하지만, 그건 여러 번 가공해서 DNA가 남아 있지도 않은 제품에 굳이 표시할 이유가 없기 때문이에요. 원래 DNA는 대부분 위장에서 효소나 위산에 분해되어 버리기 때문에 걱정할 필요가 없습니다. 그래도 불안하다면 완전표시제를 주장해야지 유전자조작 식품 자체를 거부해선 안 되겠지요.</p>
+    <p>유전자조작 식품을 반대하는 사람들은 대부분 친환경 제품이나 유기농 제품을 늘려야 한다고 주장합니다. 그러나 여러분도 잘 알다시피 이런 제품은 값이 비싸서 누구나 쉽게 사먹을 수 없어요. 오히려 유전자조작으로 영양분과 품질을 개선한 식품이 값도 싸고 소비자들의 요구도 만족시킬 수 있답니다. 2015년 미국 식약청은 깎아 놓아도 갈변하지 않는 사과, 발암물질인 아크릴아미드가 생성되지 않는 감자, 성장 속도와 크기가 두 배인 연어를 안전하다고 승인했어요. 이처럼 유전자조작 식품 덕분에 우리는 싼 가격에 다양하고 품질 좋은 식품을 먹을 수 있어요. 따라서 유전자조작 식품을 거부할 이유가 없는 것이지요.</p>
+  </section>
+
+  <!-- ===================== 반대 ===================== -->
+  <section class="block con" id="con">
+    <span class="stance-badge con">반대</span>
+    <div class="stance-lead">“아니야, 유전자조작 식품을 먹으면 안 돼”</div>
+
+    <h3 class="arg" id="con-1">1. 유전자조작 식품은 안전하지 않아</h3>
+    <p>1994년, 잘 무르지 않는 유전자조작 토마토가 생산되자 식품 회사들은 토마토 통조림을 만들어 싼값에 팔았습니다. 이 통조림은 사람들에게 큰 인기를 끌었어요. 1996년엔 유전자조작 콩과 옥수수가 생산되어 전 세계로 팔려 나가기 시작했고요. 그러자 과학자들은 이 낯선 식품이 안전한지 아닌지 본격적으로 연구했지요.</p>
+    <p>1998년 당시 세계적인 연구자였던 영국 로웨트 연구소의 푸스타이 박사도 유전자조작 감자를 쥐에게 먹이는 실험을 했어요. 그 결과 단 열흘 만에 쥐들의 몸에 암세포가 자라나고 간과 뇌와 고환이 작아지는 것을 발견했지요. 박사는 큰 충격을 받아 즉시 이를 언론과 과학계에 적극적으로 알렸습니다. 그런데 논문을 발표한 뒤 이틀 만에 푸스타이 박사는 35년간 다니던 연구소에서 갑자기 해고되고 말았어요. 침묵하지 않으면 소송을 걸겠다는 협박과 함께요.</p>
+    <p>그 후 2012년에 미국의 유명한 과학 학술지인 〈식품과 화학독성학〉에 충격적인 사진과 함께 유전자조작 식품의 위험성을 알리는 또 한 편의 중요한 논문이 실렸습니다. 프랑스 캉 대학의 세라리니 교수가 이끄는 연구팀의 논문이었어요. 이 연구팀은 정확한 결과를 위해 보통 90일 동안만 하는 동물 실험을 2년 동안이나 했다고 해요. 때문에 누구도 쉽게 반박할 수 없는 연구였지요.</p>
+    <p>2년 동안 유전자조작 옥수수를 먹은 흰 쥐들의 상태는 끔찍했어요. 온몸에 종양이 발생하거나 간과 신장에 독성 물질이 쌓여 병들대로 병들다 일찍 죽어 버린 거예요. 그 일로 엄청난 논란이 일었지만 긴 싸움 끝에 결국 세라리니 교수의 연구 결과는 학계의 인정을 받았어요. 이후 수많은 과학자들이 교수의 실험을 재현해 그의 연구가 틀리지 않았음을 함께 밝혀냈고요.</p>
+    <p>유전자조작 식품이 쥐들에게 이토록 해롭다면 당연히 인간에게도 해롭지 않을까요? 특히 어린이들은 아직 면역 체계가 완성되지 않아 독소에 잘 대응하지 못해요. 그래서 유전자조작 식품은 어린이들에게 훨씬 더 위험합니다. 함부로 먹어선 안 되는 것이지요.</p>
+
+    <h3 class="arg" id="con-2">2. 유전자조작 식품은 자연과 생명의 질서를 파괴해</h3>
+    <p>유전자조작 곡식과 채소를 심으면 농약도 제초제도 뿌릴 필요가 없으니 자연과 환경에 큰 도움이 된다는 주장이 있어요. 그러나 현실은 정반대입니다. 1995년 미국 코넬대학교 연구팀은 해충저항성 옥수수의 꽃가루가 주변으로 퍼져 나가 이것을 먹은 모나크 나비 애벌레의 44%가 죽어 버린 사실을 발견했어요. 그리고 농사에 필요한 이로운 곤충과 잠자리나 무당벌레 같은 주변 곤충들, 땅속의 미생물까지 모조리 죽게 만들었지요. 심지어 이 유전자조작 옥수수를 먹은 사람의 위와 장에도 미세한 구멍을 내서 소화기관을 손상시켰다고 해요.</p>
+    <aside class="note"><b>해충저항성 옥수수</b>란? 곤충의 소화기관에 구멍을 뚫는 Bt 박테리아라는 세균의 유전자를 조합해 만든 옥수수를 말해요. 옥수수가 스스로 살충 성분을 만들어 내 벌레가 조금이라도 먹으면 배 속에 구멍이 뚫려 죽도록 만든 옥수수예요.</aside>
+    <p>뿐만 아니라 시간이 지나자 해충들에게 내성이 생겨 오히려 전보다 훨씬 더 독한 농약을 뿌려야 하지요. 제초제를 덜 쓰게 된다는 이야기도 마찬가지예요. 미국의 다국적 생명공학 회사인 몬산토는 라운드업이라는 제초제에 내성을 가진 유전자조작 콩과 옥수수를 개발했어요. 이 콩과 옥수수를 심고 라운드업을 뿌리면 잡초는 전부 말라 죽고 콩과 옥수수만 말짱하게 잘 자랍니다. 그래서 농사짓기가 굉장히 편해요. 하지만 2003년, 라운드업을 뿌려도 살아남는 슈퍼 잡초가 발견되었어요. 결국 예전보다 더 독한 제초제를 더 많이 뿌려야 하는 것이지요. 게다가 라운드업에 들어 있는 글리포세이트라는 성분 때문에 유전자조작 콩밭이 있는 마을에서 기형아 출산이 70배나 늘었다고 해요. 이처럼 유전자조작은 환경에 도움이 되기는커녕 자연 생태계를 망가뜨리고 인간의 삶을 위협하고 있어요.</p>
+    <p>유전자조작 식품을 개발하고 판매하는 기업들은 원래 농부들이 자연에서 해 오던 것을 실험실에서 좀 더 빨리하고 있을 뿐이라고 말합니다. 그러나 옛날부터 해 오던 품종개량은 오이 맛 풋고추나 체리 모양 토마토처럼 자연에서도 우연히 얼마든지 일어날 수 있는 조합을 하는 거예요. 반면 유전자조작은 자연에서 서로 교배할 수 없는 유전자를 섞어 버려요. 이렇게 탄생한 괴상한 생물들은 지구의 생태계를 어지럽힙니다. 지구 생태계는 수십억 년 동안 오랜 진화를 거치며 환경에 맞게 변화해 왔어요. 그런데 이걸 무시하고 단시간에 인위적으로 탄생한 생명체가 과연 인간과 자연과 함께 어울려 살아갈 수 있을까요?</p>
+
+    <h3 class="arg" id="con-3">3. 유전자조작 식품은 식량문제를 해결해 줄 수 없어</h3>
+    <p>유전자조작 식품을 반대하면 많은 사람들이 굶주림으로 죽어가는 아프리카 아이들은 어쩔 셈이냐고 합니다. 물론 먹을 것이 없어 고통받는 사람이 10억 명에 이른다는 것은 정말 가슴 아픈 일이에요. 그러나 그렇다고 해서 유전자조작 식품이 식량문제를 해결해 줄 수는 없어요.</p>
+    <p>우리는 우선 식량이 부족해서 사람들이 굶는 게 아니라는 사실을 알아야 해요. 식량은 이미 전 인류의 필요량보다 1.5배나 더 생산되고 있어요. 그런데 왜 식량이 모자랄까요? 현재 생산되는 곡식의 40%는 사람이 아닌 가축의 사료로 사용되고 있어요. 고기를 생산하기 위해서지요. 또 전체 옥수수의 20%는 바이오 에탄올을 만들기 위해 사용되고요. 사람이 먹어야 할 곡식을 가축과 자동차가 먹어 치우는 거예요. 여기에다 수많은 경제적, 사회적 이유로 부자 나라와 가난한 나라 사이에서 식량이 공평하게 나누어지지 못하는 것도 이유 중 하나지요.</p>
+    <p>그러나 우리는 유전자조작 식품의 생산량이 알려진 것보다 높지 않다는 사실을 정확히 알아야 해요. 미국의 유명한 과학자 단체인 ‘걱정하는 과학자 모임’은 「수확의 실패」라는 보고서에서 유기농 곡식과 유전자조작 곡식을 나란히 재배한 결과 수확량에 별 차이가 없음을 발견했어요. 심지어 가뭄이 들자 오히려 유기농 곡식의 수확량이 유전자조작 곡식의 수확량을 넘어섰다고 해요. 미국 국립농업과학원의 사무총장이었던 찰스 벤부룩도 유전자조작 곡식을 기르면 생산 비용이 줄고 수확량이 늘어 농가 소득을 올릴 수 있다는 말이 거짓말이라고 인정했어요. 시간이 지날수록 오히려 더 많은 비용이 들 뿐이라면서요.</p>
+    <p>여러분이 가난한 나라의 어린이라면 배고프니까 찬밥 더운밥 가리지 말고 먹으라는 소리가 듣기 좋을까요? 유전자조작 식품으로 가난한 나라 사람들을 구하자는 이야기는 가난하니까 몸에 해로운 거라도 군소리 없이 먹으라는 말과 같아요. 다행히 인류 모두의 노력으로 1990년에는 23.3%였던 전 세계 기아 인구가 2015년엔 12.9%로 줄어들었어요. 이 기간 동안 인구가 19억 명이나 증가했는데도 말이에요. 시간은 조금 걸리겠지만 유전자조작 식품의 도움 없이도 우리는 식량문제를 해결할 수 있습니다.</p>
+
+    <h3 class="arg" id="con-4">4. 유전자조작 식품은 먹거리 선택권을 침해해</h3>
+    <p>사람은 누구나 자신이 원하는 먹거리를 선택할 권리가 있어요. 그런데 그런 권리를 자신도 모르는 사이 빼앗기고 있다면 화가 나지 않을까요? 게다가 그 먹거리가 안전하지도 않은 거라면 더 그렇겠지요. 그러나 우리나라에선 유전자조작 식품이 싫어도 피할 수가 없어요.</p>
+    <p>우리나라 사람들은 옥수수와 콩을 굉장히 많이 먹습니다. 콩은 식용유, 두부, 간장, 된장, 고추장, 참치통조림에 들어 있는 기름의 주재료지요. 옥수수는 통조림으로 먹기도 하지만 전분과 전분당으로 만들어져 과자, 음료수, 짜장면, 소시지, 유제품, 라면 수프, 감미료와 올리고당에 들어갑니다. 한마디로 우리가 먹는 거의 모든 음식에 옥수수와 콩이 사용되는 거예요. 또 소, 돼지, 닭이 먹는 사료도 옥수수와 콩으로 만든답니다. 그런데 불행히도 우리나라에서 쓰이는 옥수수와 콩은 대부분 유전자조작 옥수수와 콩이에요. 그러니까 우리가 먹는 거의 모든 음식에 유전자조작 콩과 옥수수가 들어 있고, 심지어 고기도 유전자조작 사료로 키운 동물의 고기를 먹고 있는 셈이지요.</p>
+    <p>물론 식품위생법이란 게 있어서 유전자조작 콩이나 옥수수가 들어간 제품은 전부 표시를 하도록 되어 있어요. 그러나 가공해서 DNA가 남아 있지 않은 식품에는 표시를 안 해도 되기 때문에 어떤 식품에 얼마나 들어 있는지 제대로 알기가 쉽지 않아요. 먹거리 선택권을 침해당하고 있는 것이지요.</p>
+    <p>유전자조작 식품이 아무리 훌륭한 식품이라고 말해 봤자 유전자조작 식품을 좋아하는 사람들은 아무도 없어요. 제정신을 가진 사람이라면 누구나 안전하고 건강한 식품을 원하기 때문이에요. 오로지 이익에만 관심을 쏟는 기업들만이 돈벌이를 위해 유전자조작 식품을 가공하고 판매하며 몸에 좋은 식품인 양 선전하고 있지요.</p>
+    <p>유전자조작 식품이 해롭다는 사실이 확실히 증명되지 않았다고요? 유전자조작 식품이 안전하다는 사실도 확실히 증명되지 않았어요. 백번 양보해서 유전자조작 식품이 해로운지 아닌지 아직 모르는 상태라고 해 봐요. 그럴수록 함부로 먹지 말고 결과를 기다리는 게 현명한 자세 아닐까요? 우리가 유전자조작 식품을 먹어야 할 이유는 어디에도 없습니다.</p>
+  </section>
+
+  <p class="src">원문: 『GMO — 유전자조작 식품을 먹어도 될까?』 학습 자료 (<code>GMO.pdf</code>)</p>
+
+</div>
+
+<div class="bottombar">
+  <a class="back" href="index.html" id="backBottom">← 학습지로 돌아가기</a>
+  <button class="toTop" type="button" id="toTop">맨 위로</button>
+</div>
+
+<script>
+(function(){
+  "use strict";
+  var toTop = document.getElementById("toTop");
+  if(toTop){
+    toTop.addEventListener("click", function(){
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    });
+  }
+})();
+</script>
+</body>
+</html>
