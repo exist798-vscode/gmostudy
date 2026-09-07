@@ -106,7 +106,7 @@
     background:rgba(255,255,255,.96);backdrop-filter:blur(6px);
     border-top:1px solid var(--line);
     padding:12px 16px calc(12px + env(safe-area-inset-bottom));
-    display:flex;gap:10px;align-items:center;justify-content:center;
+    display:flex;gap:10px;align-items:center;justify-content:center;flex-wrap:wrap;
   }
   .actionbar .status{font-size:.8rem;color:var(--muted);margin-right:auto}
   .btn{
@@ -116,6 +116,10 @@
   .btn.primary{background:var(--accent);color:#fff;box-shadow:0 4px 12px rgba(45,91,214,.3)}
   .btn.primary:active{transform:translateY(1px)}
   .btn.ghost{background:#fff;border:1px solid var(--line);color:var(--muted)}
+  .btn.send{background:var(--pro);color:#fff;box-shadow:0 4px 12px rgba(27,127,75,.3)}
+  .btn.send:active{transform:translateY(1px)}
+  .btn.send.done{background:#0f5c34}
+  .btn[disabled]{opacity:.55;cursor:default}
   .tip{max-width:900px;margin:10px auto 0;font-size:.8rem;color:var(--muted);text-align:center}
 
   /* ================= 인쇄(PDF) 레이아웃 ================= */
@@ -197,12 +201,14 @@
   <span class="status" id="status">자동 저장됨</span>
   <button class="btn ghost" id="clearBtn" type="button">전체 지우기</button>
   <button class="btn primary" id="pdfBtn" type="button">PDF로 저장</button>
+  <button class="btn send" id="submitBtn" type="button" hidden>제출하기</button>
 </div>
-<p class="tip">안드로이드: 버튼을 누르면 인쇄 화면이 열립니다. <b>대상(프린터)</b>을 <b>‘PDF로 저장’</b>으로 바꾸고 저장하세요.</p>
+<p class="tip">안드로이드: <b>PDF로 저장</b>을 누르면 인쇄 화면이 열립니다. <b>대상(프린터)</b>을 <b>‘PDF로 저장’</b>으로 바꾸고 저장하세요. &nbsp;／&nbsp; <b>제출하기</b>를 누르면 선생님께 내용이 전송됩니다.</p>
 
 <!-- 인쇄용 학습지 (화면에는 보이지 않음) -->
 <div id="printArea"></div>
 
+<script src="config.js"></script>
 <script>
 (function(){
   "use strict";
@@ -327,6 +333,103 @@
   }
   function flashStatus(t){ document.getElementById("status").textContent = t; }
 
+  // ----- 스프레드시트 제출 -----
+  var CFG = window.GMO_CONFIG || {};
+  var SUBMIT_KEY = KEY + ":submitted";
+  var submitBtn = document.getElementById("submitBtn");
+
+  function fval(id){ var el = document.getElementById(id); return el ? (el.value || "").trim() : ""; }
+
+  // 시트 열 순서 (apps-script/Code.gs 가 이 순서대로 헤더를 만든다)
+  var SUBMIT_HEADERS = ["제출시각","학교","학년","반","번호","이름","작성일자"];
+  ARGS.forEach(function(a){
+    var k = a.topic.replace(/\s/g, "");
+    SUBMIT_HEADERS.push(k + "-찬성", k + "-반대");
+  });
+  SUBMIT_HEADERS.push("나의입장","그렇게생각하는까닭","새롭게알게된점");
+
+  function buildRow(){
+    var stanceEl = document.querySelector('input[name="stance"]:checked');
+    var row = {
+      "학교": fval("school"), "학년": fval("grade"), "반": fval("cls"),
+      "번호": fval("num"), "이름": fval("stuName"), "작성일자": fval("date"),
+      "나의입장": stanceEl ? stanceEl.value : "",
+      "그렇게생각하는까닭": fval("myReason"),
+      "새롭게알게된점": fval("myReflect")
+    };
+    ARGS.forEach(function(a, i){
+      var k = a.topic.replace(/\s/g, "");
+      row[k + "-찬성"] = fval("pro-" + i);
+      row[k + "-반대"] = fval("con-" + i);
+    });
+    return row;
+  }
+
+  function markSubmitted(when){
+    var d = when || new Date();
+    try{ localStorage.setItem(SUBMIT_KEY, d.toISOString()); }catch(e){}
+    submitBtn.classList.add("done");
+    submitBtn.textContent = "제출됨 ✓ " + d.toLocaleTimeString("ko-KR", { hour: "2-digit", minute: "2-digit" });
+  }
+  function resetSubmitted(){
+    try{ localStorage.removeItem(SUBMIT_KEY); }catch(e){}
+    submitBtn.classList.remove("done");
+    submitBtn.textContent = "제출하기";
+  }
+
+  function submitData(){
+    if(!CFG.submitUrl) return;
+    if(!fval("stuName")){
+      alert("이름을 먼저 입력해 주세요. 선생님이 누구 것인지 알 수 있어야 해요.");
+      document.getElementById("stuName").focus();
+      return;
+    }
+    var empty = [].slice.call(document.querySelectorAll(".app textarea")).filter(function(t){ return !t.value.trim(); }).length;
+    var noStance = !document.querySelector('input[name="stance"]:checked');
+    if(empty > 0 || noStance){
+      var m = "아직 완성되지 않았어요.";
+      if(empty > 0) m += "\n· 비어 있는 칸 " + empty + "개";
+      if(noStance) m += "\n· ‘나의 입장’ 선택 안 함";
+      m += "\n\n그래도 제출할까요?";
+      if(!confirm(m)) return;
+    }
+    var already = null;
+    try{ already = localStorage.getItem(SUBMIT_KEY); }catch(e){}
+    if(already && !confirm("이미 제출했어요.\n수정한 내용을 다시 제출할까요? (시트에 새 줄로 추가됩니다)")) return;
+
+    var prevLabel = submitBtn.textContent;
+    submitBtn.disabled = true;
+    submitBtn.textContent = "제출 중…";
+    flashStatus("제출 중…");
+
+    fetch(CFG.submitUrl, {
+      method: "POST",
+      headers: { "Content-Type": "text/plain;charset=utf-8" },
+      body: JSON.stringify({ headers: SUBMIT_HEADERS, row: buildRow(), token: CFG.token || "" })
+    })
+    .then(function(res){
+      return res.text().then(function(txt){
+        var out = {};
+        try{ out = JSON.parse(txt); }catch(e){}
+        if(!res.ok || (out.result && out.result !== "ok")){
+          throw new Error(out.message || ("HTTP " + res.status));
+        }
+      });
+    })
+    .then(function(){
+      submitBtn.disabled = false;
+      markSubmitted();
+      flashStatus("제출 완료");
+      alert("제출되었습니다. 선생님이 확인할 수 있어요.\n필요하면 ‘PDF로 저장’도 눌러 두세요.");
+    })
+    .catch(function(err){
+      submitBtn.disabled = false;
+      submitBtn.textContent = prevLabel;
+      flashStatus("제출 실패");
+      alert("제출에 실패했어요.\n· 인터넷 연결을 확인하고 다시 눌러 주세요.\n· 계속 안 되면 ‘PDF로 저장’해서 선생님께 보내세요.\n\n(" + err.message + ")");
+    });
+  }
+
   // ----- 이벤트 -----
   document.addEventListener("input", function(e){
     var el = e.target;
@@ -353,9 +456,12 @@
       if(el.type === "radio") el.checked = false; else el.value = "";
     });
     document.querySelectorAll(".app textarea").forEach(function(t){ autogrow(t); updateCount(t); });
+    resetSubmitted();
     setToday();
     flashStatus("모두 지웠어요");
   });
+
+  submitBtn.addEventListener("click", submitData);
 
   document.getElementById("pdfBtn").addEventListener("click", function(){
     var empty = [].slice.call(document.querySelectorAll(".app textarea")).filter(function(t){ return !t.value.trim(); }).length;
@@ -447,6 +553,16 @@
   }catch(e){}
   setToday();
   document.querySelectorAll(".app textarea").forEach(function(t){ autogrow(t); updateCount(t); });
+
+  // 제출 기능: submitUrl 이 설정된 경우에만 '제출하기' 버튼을 켠다
+  if(CFG.submitUrl){
+    submitBtn.hidden = false;
+    document.getElementById("pdfBtn").classList.replace("primary", "ghost");
+    try{
+      var when = localStorage.getItem(SUBMIT_KEY);
+      if(when) markSubmitted(new Date(when));
+    }catch(e){}
+  }
 })();
 </script>
 </body>
