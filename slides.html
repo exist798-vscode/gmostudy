@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GMO 토론 수업 — 프리젠테이션</title>
+<style>
+  /* ===== 기술·가정 테마 (subject-slide-maker: themes.md #6) ===== */
+  @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;700&display=swap');
+  :root{
+    --bg:#f4f4f5; --bg-dark:#18181b; --surface:#ffffff;
+    --text:#18181b; --text-dark:#e4e4e7; --subtext:#52525b;
+    --accent:#ea580c;      /* industrial orange */
+    --accent-2:#0891b2;    /* steel cyan — 찬성 */
+    --accent-3:#dc2626;    /* hazard red — 반대 */
+    --line:#d4d4d8; --accent-soft:#fff1ea;
+    --font-display:'Pretendard',-apple-system,"Apple SD Gothic Neo","Malgun Gothic",sans-serif;
+    --font-body:'Pretendard',-apple-system,"Apple SD Gothic Neo","Malgun Gothic",sans-serif;
+    --font-data:'JetBrains Mono',ui-monospace,Menlo,Consolas,monospace;
+  }
+
+  *{ word-break:keep-all; overflow-wrap:break-word; box-sizing:border-box; margin:0; padding:0; }
+  html,body{ width:100%; height:100%; overflow:hidden; background:var(--bg); }
+  body{ font-family:var(--font-body); color:var(--text); }
+
+  .slide{
+    position:absolute; inset:0;
+    width:100vw; height:100vh; overflow:hidden;
+    display:none; flex-direction:column; align-items:center; justify-content:center;
+    padding:6vh 8vw; text-align:center;
+    background:var(--bg); color:var(--text);
+    /* 청사진 그리드 모티프 */
+    background-image:linear-gradient(var(--line) 1px,transparent 1px),linear-gradient(90deg,var(--line) 1px,transparent 1px);
+    background-size:6vh 6vh; background-position:center;
+  }
+  .slide::after{ content:""; position:absolute; inset:0; background:var(--bg); opacity:.94; z-index:0; }
+  .slide.dark{ background:var(--bg-dark); color:var(--text-dark); }
+  .slide.dark::after{ background:var(--bg-dark); }
+  .slide > *{ position:relative; z-index:1; }
+  .slide.active{ display:flex; }
+
+  h1{ font-family:var(--font-display); font-weight:800; font-size:7vh; line-height:1.2; letter-spacing:-.01em; }
+  .stitle{ font-family:var(--font-display); font-weight:800; font-size:5vh; margin-bottom:3.4vh; }
+  .stitle.light{ color:var(--text-dark); }
+  .kicker{
+    font-family:var(--font-data); font-weight:700; font-size:2vh; letter-spacing:.14em;
+    color:var(--accent); text-transform:uppercase; margin-bottom:2.4vh;
+  }
+  .cover .sub{ font-size:3vh; color:var(--subtext); margin-top:2.2vh; }
+  .cover .hint{ font-family:var(--font-data); font-size:1.7vh; color:var(--subtext); margin-top:6vh; }
+
+  /* 소단원 구분 (다크) */
+  .divider .dnum{ font-family:var(--font-data); font-weight:700; font-size:4vh; color:var(--accent); letter-spacing:.1em; }
+  .divider .dtitle{ font-family:var(--font-display); font-weight:800; font-size:6.5vh; margin-top:1.6vh; color:var(--text-dark); }
+  .divider .dq{ font-size:2.6vh; color:var(--subtext); margin-top:2.4vh; }
+
+  /* 리스트 (목표·발문·오해) */
+  ul.goals,ol.qs{ text-align:left; max-width:74vw; list-style-position:inside; }
+  ul.goals li,ol.qs li{ font-size:2.7vh; line-height:1.6; margin:2.2vh 0; }
+  ul.goals li{ list-style:none; padding-left:3vw; text-indent:-3vw; }
+  ul.goals li::before{ content:"▸ "; color:var(--accent); font-weight:800; }
+  ol.qs{ list-style:decimal; }
+  b{ color:var(--accent); font-weight:800; }
+  .slide.dark b{ color:#fb923c; }
+
+  /* ===== 프로세스 셰브론 (smartart.md #1) ===== */
+  .sa-process{ display:flex; align-items:stretch; width:88vw; }
+  .sa-step{
+    position:relative; flex:1; padding:3.4vh 2.4vw 3.4vh 3.4vw;
+    background:var(--accent-soft); border:none;
+    clip-path:polygon(0 0,calc(100% - 1.6vw) 0,100% 50%,calc(100% - 1.6vw) 100%,0 100%,1.6vw 50%);
+    margin-right:-1.2vw;
+  }
+  .sa-step:first-child{ clip-path:polygon(0 0,calc(100% - 1.6vw) 0,100% 50%,calc(100% - 1.6vw) 100%,0 100%); }
+  .sa-step:nth-child(2n){ background:color-mix(in srgb,var(--accent) 14%,var(--surface)); }
+  .sa-step-no{
+    display:inline-flex; align-items:center; justify-content:center;
+    width:4.4vh; height:4.4vh; border-radius:50%;
+    background:var(--accent); color:#fff; font-family:var(--font-data); font-weight:700; font-size:2.2vh;
+  }
+  .sa-step-t{ font-family:var(--font-display); font-weight:800; font-size:2.7vh; margin-top:1.2vh; }
+  .sa-step .cap{ font-size:1.8vh; color:var(--subtext); margin-top:.5vh; }
+
+  /* ===== 허브-스포크 (smartart.md #8) ===== */
+  .hubwrap{ display:flex; flex-direction:column; align-items:center; }
+  .hubdef{ font-size:2.3vh; color:var(--subtext); max-width:70vw; margin-bottom:3vh; }
+  .sa-hub{ position:relative; width:52vh; height:52vh; }
+  .sa-hub-center{
+    position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); z-index:2;
+    width:17vh; height:17vh; border-radius:50%; background:var(--accent); color:#fff;
+    display:flex; align-items:center; justify-content:center; text-align:center;
+    font-family:var(--font-display); font-weight:800; font-size:3vh;
+  }
+  .sa-spoke{
+    position:absolute; left:50%; top:50%; width:15vh; height:15vh; margin:-7.5vh 0 0 -7.5vh;
+    border-radius:50%; background:var(--accent-soft); border:2px solid var(--accent-2);
+    display:flex; align-items:center; justify-content:center; text-align:center; padding:1vh;
+    transform:rotate(calc(360deg / var(--n) * var(--i))) translateY(-19vh) rotate(calc(-360deg / var(--n) * var(--i)));
+  }
+  .sa-spoke span{ font-family:var(--font-display); font-weight:700; font-size:1.9vh; color:var(--text); }
+
+  /* ===== 계층/조직도 (smartart.md #3) ===== */
+  .sa-tree{ display:flex; flex-direction:column; align-items:center; }
+  .sa-tree-root{
+    padding:2.2vh 4vw; font-family:var(--font-display); font-size:3vh; font-weight:800;
+    background:var(--accent); color:#fff; border-radius:14px;
+  }
+  .sa-tree-row{ display:flex; gap:2.4vw; margin-top:5vh; position:relative; }
+  .sa-tree-row::before{ content:""; position:absolute; top:-5vh; left:50%; width:3px; height:2.5vh; background:var(--line); transform:translateX(-50%); }
+  .sa-branch{ position:relative; }
+  .sa-branch::before{ content:""; position:absolute; top:-2.5vh; left:50%; width:3px; height:2.5vh; background:var(--line); transform:translateX(-50%); }
+  .sa-tree-row::after{ content:""; position:absolute; top:-2.5vh; left:10%; right:10%; height:3px; background:var(--line); }
+  .sa-tree .sa-node{
+    padding:2vh 1.8vw; font-family:var(--font-display); font-size:2.3vh; font-weight:700;
+    background:var(--surface); border:2px solid var(--line); border-top:5px solid var(--accent-2); border-radius:12px;
+  }
+
+  /* ===== 찬반 비교 (custom) ===== */
+  .cmp{ display:flex; gap:2vw; width:86vw; align-items:stretch; }
+  .cmp-col{ flex:1; background:var(--surface); border:2px solid var(--line); border-radius:16px; padding:3vh 2vw; text-align:left; }
+  .cmp-col.a{ border-top:7px solid var(--accent-2); }
+  .cmp-col.b{ border-top:7px solid var(--accent-3); }
+  .cmp-h{ font-family:var(--font-display); font-weight:800; font-size:3vh; margin-bottom:1.8vh; }
+  .cmp-col.a .cmp-h{ color:var(--accent-2); }
+  .cmp-col.b .cmp-h{ color:var(--accent-3); }
+  .cmp-col li{ list-style:none; font-size:2.15vh; line-height:1.5; margin:1.2vh 0; padding-left:1.7vw; position:relative; }
+  .cmp-col li::before{ content:"–"; position:absolute; left:0; color:var(--subtext); }
+  .cmp.on-dark .cmp-col{ background:transparent; border-color:#3f3f46; }
+  .cmp-point{
+    width:86vw; margin-top:2.2vh; background:var(--accent-soft);
+    border-left:5px solid var(--accent); border-radius:10px; padding:1.8vh 2vw; text-align:left; font-size:2.1vh;
+  }
+  .cmp.on-dark ~ .cmp-point{ background:#27272a; }
+
+  /* ===== 막대그래프 (smartart.md +막대) ===== */
+  .sa-bars{ display:flex; align-items:flex-end; gap:6vw; height:42vh; }
+  .sa-bar-col{ display:flex; flex-direction:column; align-items:center; justify-content:flex-end; }
+  .sa-bar{ width:12vh; background:var(--accent-2); border-radius:6px 6px 0 0; }
+  .sa-bar.alt{ background:var(--accent); }
+  .sa-bar-v{ font-family:var(--font-data); font-weight:700; font-size:2.4vh; margin-top:1vh; }
+  .sa-bar-l{ font-family:var(--font-display); font-size:1.9vh; color:var(--subtext); margin-top:.3vh; }
+  .cap{ font-size:2.1vh; color:var(--subtext); max-width:76vw; margin-top:4vh; line-height:1.55; }
+
+  /* ===== 체크리스트 (기술 안전수칙 모티프) ===== */
+  .checklist{ text-align:left; max-width:76vw; }
+  .checklist .stripe{
+    height:2vh; border-radius:6px 6px 0 0;
+    background:repeating-linear-gradient(45deg,var(--accent-3) 0 1.6vh,#1f1f1f 1.6vh 3.2vh);
+  }
+  .checklist ul{ background:var(--surface); border:2px solid var(--line); border-top:none; border-radius:0 0 14px 14px; padding:2.6vh 2.4vw; }
+  .checklist li{ list-style:none; font-size:2.4vh; line-height:1.5; margin:1.6vh 0; padding-left:3vw; text-indent:-3vw; }
+  .checklist li::before{ content:"✓ "; color:var(--accent); font-weight:800; }
+
+  /* ===== 오해 / 실제 ===== */
+  .mis{ text-align:left; max-width:78vw; }
+  .mis .row{ margin:2vh 0; font-size:2.2vh; line-height:1.55; }
+  .mis .tag{ font-family:var(--font-data); font-weight:700; font-size:1.6vh; padding:.3vh 1vw; border-radius:6px; margin-right:1vw; }
+  .mis .tag.x{ background:var(--accent-3); color:#fff; }
+  .mis .tag.o{ background:var(--accent-2); color:#fff; margin-left:1vw; }
+
+  /* ===== 루브릭 카드 ===== */
+  .rubric{ display:grid; grid-template-columns:repeat(4,1fr); gap:1.6vw; width:86vw; }
+  .rub-card{ background:var(--surface); border:2px solid var(--line); border-top:6px solid var(--accent); border-radius:14px; padding:2.6vh 1.2vw; text-align:left; }
+  .rub-card b{ display:block; font-family:var(--font-display); font-size:2.3vh; color:var(--text); margin-bottom:1vh; }
+  .rub-card p{ font-size:1.85vh; line-height:1.45; color:var(--subtext); }
+
+  .writebox{ display:flex; gap:2vw; width:80vw; }
+  .writebox .wb{ flex:1; background:var(--accent-soft); border:2px solid var(--accent); border-radius:14px; padding:3vh 1.6vw; }
+  .writebox .wb h4{ font-family:var(--font-display); font-size:2.4vh; color:var(--accent); margin-bottom:1vh; }
+  .writebox .wb p{ font-size:2vh; color:var(--text); line-height:1.45; }
+
+  .closing .msg{ font-family:var(--font-display); font-weight:800; font-size:4.6vh; line-height:1.4; max-width:82vw; color:var(--text-dark); }
+  .closing .msg em{ color:#fb923c; font-style:normal; }
+
+  /* ===== 프래그먼트 ===== */
+  .fragment{ opacity:0; transition:opacity .35s ease; }
+  .fragment.visible{ opacity:1; }
+
+  /* ===== 크롬 (나가기 · 카운터) ===== */
+  .exit{
+    position:fixed; top:2.4vh; right:2.4vw; z-index:100;
+    font-family:var(--font-data); font-size:1.6vh; font-weight:700; cursor:pointer;
+    background:var(--surface); color:var(--subtext); border:1px solid var(--line);
+    border-radius:8px; padding:.9vh 1.4vw;
+  }
+  .counter{
+    position:fixed; bottom:2.4vh; right:2.6vw; z-index:100;
+    font-family:var(--font-data); font-size:1.7vh; color:var(--subtext);
+  }
+  .progress{ position:fixed; left:0; top:0; height:4px; background:var(--accent); z-index:100; transition:width .3s ease; }
+</style>
+</head>
+<body>
+
+<button class="exit" id="exit" type="button">✕ 나가기</button>
+<div class="progress" id="progress"></div>
+<div class="counter" id="counter"></div>
+
+<!-- 1 · 표지 -->
+<section class="slide dark cover">
+  <div class="kicker">기술·가정 · 토론 수업</div>
+  <h1>GMO, 먹어도 될까?</h1>
+  <p class="sub">유전자조작 식품 찬성·반대 근거 따져 보기</p>
+  <p class="hint">→ / Space : 다음　·　← : 이전　·　화면 오른쪽/왼쪽 터치</p>
+</section>
+
+<!-- 2 · 학습 목표 -->
+<section class="slide">
+  <h2 class="stitle">학습 목표</h2>
+  <ul class="goals">
+    <li class="fragment">네 가지 쟁점에서 <b>찬성·반대의 핵심 근거</b>를 구분해 설명한다.</li>
+    <li class="fragment"><b>주장과 근거를 구별</b>하고, 근거의 신뢰성과 표현을 비판적으로 검토한다.</li>
+    <li class="fragment">근거를 바탕으로 <b>내 입장을 정하고 그 까닭</b>을 논리적으로 글로 쓴다.</li>
+  </ul>
+</section>
+
+<!-- 3 · 오늘의 흐름 -->
+<section class="slide">
+  <h2 class="stitle">오늘의 흐름</h2>
+  <div class="sa-process">
+    <div class="sa-step fragment"><span class="sa-step-no">1</span><div class="sa-step-t">생각 열기</div><p class="cap">편의점 이야기</p></div>
+    <div class="sa-step fragment"><span class="sa-step-no">2</span><div class="sa-step-t">원문 읽기</div><p class="cap">찬성 4 · 반대 4</p></div>
+    <div class="sa-step fragment"><span class="sa-step-no">3</span><div class="sa-step-t">쟁점 토론</div><p class="cap">2:2 미니 토론</p></div>
+    <div class="sa-step fragment"><span class="sa-step-no">4</span><div class="sa-step-t">나의 생각</div><p class="cap">입장 + 까닭</p></div>
+  </div>
+</section>
+
+<!-- 4 · 생각 열기 (다크) -->
+<section class="slide dark">
+  <h2 class="stitle light">생각 열기 — 편의점에서</h2>
+  <div class="cmp on-dark">
+    <div class="cmp-col a">
+      <div class="cmp-h">안심해</div>
+      <ul>
+        <li class="fragment">“그냥 콜라 맛있게 먹고 축구 한 판 더 뛸래.”</li>
+        <li class="fragment">따지느라 받는 스트레스가 더 해롭다</li>
+      </ul>
+    </div>
+    <div class="cmp-col b">
+      <div class="cmp-h">의심해</div>
+      <ul>
+        <li class="fragment">“그 두유, 유전자조작 콩일지도 몰라.”</li>
+        <li class="fragment">비싸도 유기농·비(非)GMO를 고른다</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- 5 · 생각 열기 발문 -->
+<section class="slide">
+  <h2 class="stitle">함께 생각해 보기</h2>
+  <ol class="qs">
+    <li class="fragment">두 사람 중 <b>누구의 태도</b>에 더 공감하나요? 그 까닭은?</li>
+    <li class="fragment">오늘 먹은 음식 중 <b>콩·옥수수</b>가 들어간 것을 찾아봅시다.</li>
+  </ol>
+</section>
+
+<!-- 6 · GMO란? -->
+<section class="slide">
+  <h2 class="stitle">GMO란?</h2>
+  <div class="hubwrap">
+    <p class="hubdef">자연 교배로는 섞일 수 없는 유전자를 작물에 넣어 <b>원하는 형질</b>(수확량·저항성·영양)을 얻는 기술</p>
+    <div class="sa-hub" style="--n:4;">
+      <div class="sa-hub-center">GMO</div>
+      <div class="sa-spoke fragment" style="--i:0;"><span>제초제 내성 콩</span></div>
+      <div class="sa-spoke fragment" style="--i:1;"><span>Bt 옥수수<br>(해충 저항성)</span></div>
+      <div class="sa-spoke fragment" style="--i:2;"><span>황금쌀<br>(비타민A)</span></div>
+      <div class="sa-spoke fragment" style="--i:3;"><span>무름 방지<br>토마토</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- 7 · 네 가지 쟁점 -->
+<section class="slide">
+  <h2 class="stitle">네 가지 쟁점</h2>
+  <div class="sa-tree">
+    <div class="sa-tree-root fragment">GMO 찬반 토론</div>
+    <div class="sa-tree-row">
+      <div class="sa-branch fragment"><div class="sa-node">안전성</div></div>
+      <div class="sa-branch fragment"><div class="sa-node">환경과 경제</div></div>
+      <div class="sa-branch fragment"><div class="sa-node">식량 문제</div></div>
+      <div class="sa-branch fragment"><div class="sa-node">먹거리 선택권</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- 8 · 쟁점1 구분 -->
+<section class="slide dark divider">
+  <div class="dnum">쟁점 01</div>
+  <div class="dtitle">안전성</div>
+  <div class="dq">유전자조작 식품은 먹어도 안전한가?</div>
+</section>
+
+<!-- 9 · 쟁점1 비교 -->
+<section class="slide">
+  <h2 class="stitle">쟁점 1 · 안전성</h2>
+  <div class="cmp">
+    <div class="cmp-col a">
+      <div class="cmp-h">찬성 — 안전해</div>
+      <ul>
+        <li class="fragment">전통 육종의 연장선, 더 정확한 방법</li>
+        <li class="fragment">개발·유통 전 FDA·식약처 이중 검사</li>
+        <li class="fragment">20여 년간 대규모 피해 보고 없음</li>
+        <li class="fragment">위험 주장 논문은 재현·검증에서 반박</li>
+      </ul>
+    </div>
+    <div class="cmp-col b">
+      <div class="cmp-h">반대 — 안전하지 않아</div>
+      <ul>
+        <li class="fragment">푸스타이·세랄리니 장기 실험 — 장기 손상·종양</li>
+        <li class="fragment">어린이는 면역 미성숙 → 더 취약</li>
+        <li class="fragment">‘안전하다’는 것도 입증되지 않음</li>
+        <li class="fragment">→ 사전예방 원칙</li>
+      </ul>
+    </div>
+  </div>
+  <div class="cmp-point"><b>논점</b> — 같은 실험을 양쪽이 정반대로 해석한다. “위험 미입증”과 “안전 미입증” 중 어디에 무게를 둘까?</div>
+</section>
+
+<!-- 10 · 쟁점2 구분 -->
+<section class="slide dark divider">
+  <div class="dnum">쟁점 02</div>
+  <div class="dtitle">환경과 경제</div>
+  <div class="dq">GMO는 환경과 경제에 이로운가, 해로운가?</div>
+</section>
+
+<!-- 11 · 쟁점2 비교 -->
+<section class="slide">
+  <h2 class="stitle">쟁점 2 · 환경과 경제</h2>
+  <div class="cmp">
+    <div class="cmp-col a">
+      <div class="cmp-h">찬성 — 큰 이익</div>
+      <ul>
+        <li class="fragment">농약·제초제 사용 감소 → 환경오염·노동력↓</li>
+        <li class="fragment">농가 소득↑, 소비자 가격↓, 유통비 절감</li>
+        <li class="fragment">바이오연료 등 첨단산업 육성</li>
+      </ul>
+    </div>
+    <div class="cmp-col b">
+      <div class="cmp-h">반대 — 질서 파괴</div>
+      <ul>
+        <li class="fragment">Bt 꽃가루로 익충 피해(모나크나비 애벌레 44%)</li>
+        <li class="fragment">내성 해충·슈퍼잡초 → 오히려 농약 증가</li>
+        <li class="fragment">교배 불가 유전자 결합 → 생태계 교란</li>
+      </ul>
+    </div>
+  </div>
+  <div class="cmp-point"><b>논점</b> — 단기의 생산 효율 vs 장기의 생태·내성 비용. 시간 지평을 어디까지 볼 것인가?</div>
+</section>
+
+<!-- 12 · 쟁점3 구분 -->
+<section class="slide dark divider">
+  <div class="dnum">쟁점 03</div>
+  <div class="dtitle">식량 문제</div>
+  <div class="dq">GMO가 세계 식량 문제를 해결할 수 있을까?</div>
+</section>
+
+<!-- 13 · 쟁점3 비교 -->
+<section class="slide">
+  <h2 class="stitle">쟁점 3 · 식량 문제</h2>
+  <div class="cmp">
+    <div class="cmp-col a">
+      <div class="cmp-h">찬성 — 해결할 수 있어</div>
+      <ul>
+        <li class="fragment">가뭄·병충해에 강하고 수확량이 많다</li>
+        <li class="fragment">영양 강화 작물(황금쌀)로 결핍 대응</li>
+        <li class="fragment">분배 개선은 느리다 → 증산이 현실적</li>
+      </ul>
+    </div>
+    <div class="cmp-col b">
+      <div class="cmp-h">반대 — 해결 못 해</div>
+      <ul>
+        <li class="fragment">식량은 이미 전 인류 필요량의 1.5배 생산</li>
+        <li class="fragment">문제는 사료·연료용 전용과 불균등 분배</li>
+        <li class="fragment">실제 증수 효과는 제한적(‘수확의 실패’ 보고서)</li>
+      </ul>
+    </div>
+  </div>
+  <div class="cmp-point"><b>논점</b> — ‘생산이 부족한 문제’인가, ‘분배가 실패한 문제’인가?</div>
+</section>
+
+<!-- 14 · 쟁점3 수치 -->
+<section class="slide">
+  <h2 class="stitle">세계 곡물은 모자라지 않다?</h2>
+  <div class="sa-bars">
+    <div class="sa-bar-col fragment"><div class="sa-bar" style="height:24vh;"></div><span class="sa-bar-v">100</span><span class="sa-bar-l">전 인류 필요량</span></div>
+    <div class="sa-bar-col fragment"><div class="sa-bar alt" style="height:36vh;"></div><span class="sa-bar-v">150</span><span class="sa-bar-l">실제 생산량</span></div>
+  </div>
+  <p class="cap fragment">그런데도 왜 모자랄까? — 생산 곡물의 <b>40%는 가축 사료</b>, 옥수수의 <b>20%는 바이오연료</b>, 그리고 <b>부자 나라와 가난한 나라의 불균등 분배</b>.</p>
+</section>
+
+<!-- 15 · 쟁점4 구분 -->
+<section class="slide dark divider">
+  <div class="dnum">쟁점 04</div>
+  <div class="dtitle">먹거리 선택권</div>
+  <div class="dq">소비자는 GMO를 피할 자유를 갖고 있는가?</div>
+</section>
+
+<!-- 16 · 쟁점4 비교 -->
+<section class="slide">
+  <h2 class="stitle">쟁점 4 · 먹거리 선택권</h2>
+  <div class="cmp">
+    <div class="cmp-col a">
+      <div class="cmp-h">찬성 — 침해 아님</div>
+      <ul>
+        <li class="fragment">표시제가 있어 구분해서 살 수 있다</li>
+        <li class="fragment">가공으로 DNA가 없는 식품은 표시 실익 적음</li>
+        <li class="fragment">값싸고 다양한 선택지를 제공한다</li>
+      </ul>
+    </div>
+    <div class="cmp-col b">
+      <div class="cmp-h">반대 — 침해함</div>
+      <ul>
+        <li class="fragment">콩·옥수수가 가공식품·사료 전반에 → 회피 불가</li>
+        <li class="fragment">표시 예외가 많아 ‘모르고 먹는’ 상태</li>
+        <li class="fragment">안전이 불확실한데 알 권리마저 부족</li>
+      </ul>
+    </div>
+  </div>
+  <div class="cmp-point"><b>논점</b> — ‘완전표시제’ 강화로 해결될 문제인가, 아니면 GMO 자체의 문제인가?</div>
+</section>
+
+<!-- 17 · 비판적 읽기 -->
+<section class="slide">
+  <h2 class="stitle">원문을 비판적으로 읽기</h2>
+  <div class="checklist">
+    <div class="stripe"></div>
+    <ul>
+      <li class="fragment"><b>주장 ↔ 근거</b>를 나눈다 — “안전하다/위험하다”는 주장, 그 뒤 실험·통계가 근거</li>
+      <li class="fragment"><b>수치의 출처</b>를 묻는다 — ‘900편’, ‘6배’, ‘70배’, ‘1.5배’는 누가·언제·검증됐나?</li>
+      <li class="fragment"><b>감정적 표현</b>을 걸러낸다 — ‘호들갑’, ‘괴상한 생물’, ‘돈벌이’, ‘제정신이라면’</li>
+      <li class="fragment"><b>같은 사건, 다른 해석</b> — 푸스타이·세랄리니 연구가 찬성·반대 글에 정반대로 등장</li>
+    </ul>
+  </div>
+</section>
+
+<!-- 18 · 자주 하는 오해 -->
+<section class="slide">
+  <h2 class="stitle">자주 하는 오해</h2>
+  <div class="mis">
+    <p class="row fragment"><span class="tag x">오해</span>“GMO는 무조건 독이다” <span class="tag o">실제</span>위험 주장·반박·규제 심사가 모두 존재한다</p>
+    <p class="row fragment"><span class="tag x">오해</span>“정부가 승인했으니 100% 안전” <span class="tag o">실제</span>‘현재까지 확인된 위해 없음’이지 영구 무해 증명은 아니다</p>
+    <p class="row fragment"><span class="tag x">오해</span>“나만 안 사 먹으면 된다” <span class="tag o">실제</span>가공식품·사료 경로가 넓어 개인의 완전 회피는 어렵다</p>
+    <p class="row fragment"><span class="tag x">오해</span>“전통 육종과 완전히 같다/완전히 다르다” <span class="tag o">실제</span>형질 선택은 같고, 종을 넘는 유전자 이동은 다르다</p>
+  </div>
+</section>
+
+<!-- 19 · 토론 활동 -->
+<section class="slide">
+  <h2 class="stitle">2:2 미니 토론</h2>
+  <div class="sa-process">
+    <div class="sa-step fragment"><span class="sa-step-no">1</span><div class="sa-step-t">입론</div><p class="cap">각 편 1분</p></div>
+    <div class="sa-step fragment"><span class="sa-step-no">2</span><div class="sa-step-t">반론</div><p class="cap">각 편 1분</p></div>
+    <div class="sa-step fragment"><span class="sa-step-no">3</span><div class="sa-step-t">정리</div><p class="cap">각 편 30초</p></div>
+    <div class="sa-step fragment"><span class="sa-step-no">4</span><div class="sa-step-t">관찰자 평가</div><p class="cap">더 설득력 있던 근거 + 이유</p></div>
+  </div>
+</section>
+
+<!-- 20 · 나의 생각 쓰기 -->
+<section class="slide">
+  <h2 class="stitle">나의 생각 쓰기</h2>
+  <div class="writebox">
+    <div class="wb fragment"><h4>1. 나의 입장</h4><p>찬성 / 반대 / 아직 고민 중</p></div>
+    <div class="wb fragment"><h4>2. 그렇게 생각하는 까닭</h4><p>원문 속 사례·수치를 인용해 근거 2~3가지</p></div>
+    <div class="wb fragment"><h4>3. 알게 된 점</h4><p>공부 전과 후 생각의 변화</p></div>
+  </div>
+  <p class="cap fragment">→ 학습지에 작성하고 <b>제출하기</b> 또는 <b>PDF로 저장</b></p>
+</section>
+
+<!-- 21 · 평가 기준 -->
+<section class="slide">
+  <h2 class="stitle">평가 기준 (‘상’ 수준)</h2>
+  <div class="rubric">
+    <div class="rub-card fragment"><b>근거의 구체성</b><p>원문의 사례·수치를 자기 말로 인용해 2~3가지 제시</p></div>
+    <div class="rub-card fragment"><b>찬반 이해</b><p>반대편 논거를 정확히 요약하고 그에 대응</p></div>
+    <div class="rub-card fragment"><b>논리성</b><p>주장–근거–결론이 일관되게 연결</p></div>
+    <div class="rub-card fragment"><b>태도</b><p>불확실성을 인정하며 신중하게 판단</p></div>
+  </div>
+</section>
+
+<!-- 22 · 정리 -->
+<section class="slide dark closing">
+  <div class="kicker">오늘의 핵심</div>
+  <p class="msg">정답은 <em>어느 입장</em>이 아니라,<br>근거를 <em>얼마나 잘 따졌는가</em>이다.</p>
+</section>
+
+<script>
+(function(){
+  "use strict";
+  var slides = [].slice.call(document.querySelectorAll(".slide"));
+  var cur = 0;
+  var counter  = document.getElementById("counter");
+  var progress = document.getElementById("progress");
+
+  function frags(s){ return [].slice.call(s.querySelectorAll(".fragment:not(.visible)")); }
+  function visibleFrags(s){ return [].slice.call(s.querySelectorAll(".fragment.visible")); }
+
+  function render(){
+    slides.forEach(function(s,i){ s.classList.toggle("active", i === cur); });
+    counter.textContent = (cur + 1) + " / " + slides.length;
+    progress.style.width = ((cur) / (slides.length - 1) * 100) + "%";
+  }
+
+  function next(){
+    var s = slides[cur];
+    var f = frags(s);
+    if(f.length){ f[0].classList.add("visible"); return; }
+    if(cur < slides.length - 1){ cur++; render(); }
+  }
+  function prev(){
+    var s = slides[cur];
+    var v = visibleFrags(s);
+    if(v.length){ v[v.length - 1].classList.remove("visible"); return; }
+    if(cur > 0){ cur--; render(); }
+  }
+
+  document.addEventListener("keydown", function(e){
+    if(["ArrowRight","ArrowDown"," ","PageDown"].indexOf(e.key) > -1){ e.preventDefault(); next(); }
+    else if(["ArrowLeft","ArrowUp","PageUp"].indexOf(e.key) > -1){ e.preventDefault(); prev(); }
+    else if(e.key === "Home"){ e.preventDefault(); cur = 0; render(); }
+    else if(e.key === "End"){ e.preventDefault(); cur = slides.length - 1; render(); }
+  });
+
+  // 태블릿: 화면 좌/우 터치로 이동 (나가기 버튼 영역 제외)
+  document.addEventListener("click", function(e){
+    if(e.target.closest("#exit")) return;
+    if(e.clientX > window.innerWidth * 0.5) next(); else prev();
+  });
+
+  document.getElementById("exit").addEventListener("click", function(){
+    window.close();
+    setTimeout(function(){ window.location.href = "reading.html"; }, 120);
+  });
+
+  render();
+})();
+</script>
+</body>
+</html>

@@ -192,6 +192,13 @@
   /* 수업자료 본문 */
   .lesson-doc h1{font-size:1.4rem;margin:0 0 4px}
   .lesson-doc .lead{color:var(--muted);margin:0 0 4px}
+  a.present-btn{
+    display:inline-flex;align-items:center;gap:8px;margin-top:12px;
+    background:var(--accent);color:#fff;text-decoration:none;font-weight:800;font-size:1rem;
+    padding:13px 20px;border-radius:12px;min-height:50px;
+    box-shadow:0 4px 12px rgba(45,91,214,.3);
+  }
+  a.present-btn:active{transform:translateY(1px)}
   .lcard{
     background:var(--paper);border:1px solid var(--line);border-radius:14px;
     padding:16px 18px 8px;margin-top:16px;box-shadow:0 2px 8px rgba(20,30,50,.05);
@@ -405,6 +412,8 @@
     <div class="lesson-doc" id="lessonBody" hidden>
       <h1>GMO 토론 수업 — 교사용 지도 자료</h1>
       <p class="lead">『유전자조작 식품을 먹어도 될까?』 원문 읽기 + 찬반 학습지 활용 안내</p>
+
+      <p><a class="present-btn" href="slides.html" target="_blank" rel="noopener">▶ 수업 진행용 프리젠테이션 열기 (새 탭)</a></p>
 
       <section class="lcard">
         <h2>1. 수업 개요</h2>
