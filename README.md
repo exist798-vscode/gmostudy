@@ -3,6 +3,8 @@
 “GMO – 유전자 조작 식품을 먹어도 돼?” 찬반 토론 근거 정리 + 나의 생각 작성용 **웹 학습지**.
 학생이 안드로이드 태블릿에서 작성하고, 완료하면 **인쇄 가능한 PDF로 저장·다운로드**한다.
 
+**배포 주소: <https://gmostudy.vercel.app>**
+
 ## 구성
 
 - **단일 파일** `index.html` — 외부 라이브러리·빌드 없음, 오프라인 동작
@@ -35,7 +37,9 @@ node server.js 8080   # 포트 지정
 
 정적 파일이므로 `index.html`을 파일로 바로 열어도 대부분 동작한다.
 
-## 배포 (GitHub Pages)
+## 배포 (Vercel)
 
-Settings → Pages → Branch `main` / `/ (root)` 로 설정하면
-`https://exist798-vscode.github.io/gmostudy/` 로 학생에게 링크 배포 가능.
+**운영 주소: <https://gmostudy.vercel.app>** — 학생에게 이 링크를 배포한다.
+
+- GitHub `main` 브랜치에 `git push` 하면 Vercel이 자동 재배포한다.
+- 설정: Application Preset `Other`, 빌드 없음, `vercel.json`이 루트를 정적 서빙.
