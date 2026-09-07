@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>GMO 토론 학습지</title>
+<style>
+  :root{
+    --pro:#1b7f4b;      /* 찬성 */
+    --pro-bg:#e9f6ee;
+    --con:#c0392b;      /* 반대 */
+    --con-bg:#fdeceb;
+    --ink:#1c2430;
+    --muted:#5b6675;
+    --line:#c9d2dd;
+    --accent:#2d5bd6;
+    --paper:#ffffff;
+    --bg:#eef1f5;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    font-family:-apple-system,"Apple SD Gothic Neo","Noto Sans KR","Malgun Gothic",Roboto,sans-serif;
+    background:var(--bg);
+    color:var(--ink);
+    font-size:17px;
+    line-height:1.65;
+    -webkit-text-size-adjust:100%;
+  }
+
+  /* ================= 화면(입력) 레이아웃 ================= */
+  .app{max-width:900px;margin:0 auto;padding:16px 16px 140px}
+
+  header.top{
+    background:linear-gradient(135deg,#2d5bd6,#3aa0c9);
+    color:#fff;border-radius:16px;padding:20px 22px;
+    box-shadow:0 6px 20px rgba(45,91,214,.25);
+  }
+  header.top h1{margin:0;font-size:1.45rem;line-height:1.4}
+  header.top p{margin:6px 0 0;opacity:.95;font-size:.95rem}
+
+  .card{
+    background:var(--paper);border:1px solid var(--line);border-radius:14px;
+    padding:16px;margin-top:16px;box-shadow:0 2px 8px rgba(20,30,50,.05);
+  }
+  .card > h2{margin:0 0 4px;font-size:1.05rem}
+  .hint-lead{margin:0 0 12px;color:var(--muted);font-size:.9rem}
+
+  /* 학생 정보 */
+  .info-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px}
+  .info-grid label{display:flex;flex-direction:column;font-size:.8rem;color:var(--muted);gap:4px}
+  .info-grid input{
+    font:inherit;padding:11px 12px;border:1px solid var(--line);border-radius:10px;
+    background:#fbfcfe;color:var(--ink);min-height:46px;
+  }
+
+  /* 쟁점 카드 */
+  .topic-tag{
+    display:inline-block;background:#eef2fb;color:var(--accent);
+    font-size:.8rem;font-weight:700;padding:4px 10px;border-radius:999px;margin-bottom:8px;
+  }
+  .pair{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  @media (max-width:640px){ .pair{grid-template-columns:1fr} }
+
+  .side{border:1px solid var(--line);border-radius:12px;padding:12px;background:#fff}
+  .side.pro{border-top:4px solid var(--pro)}
+  .side.con{border-top:4px solid var(--con)}
+  .side .badge{font-weight:800;font-size:.85rem;letter-spacing:.02em}
+  .side.pro .badge{color:var(--pro)}
+  .side.con .badge{color:var(--con)}
+  .side .claim{font-weight:700;margin:4px 0 8px;font-size:.98rem}
+
+  .help-btn{
+    background:none;border:1px dashed var(--line);color:var(--muted);
+    font:inherit;font-size:.8rem;padding:6px 10px;border-radius:8px;cursor:pointer;margin-bottom:8px;
+  }
+  .help-btn:active{background:#f1f4f8}
+  ul.hints{margin:0 0 10px;padding-left:18px;color:var(--muted);font-size:.86rem}
+  ul.hints[hidden]{display:none}
+  ul.hints li{margin:2px 0}
+
+  textarea{
+    width:100%;font:inherit;font-size:1rem;line-height:1.6;
+    border:1px solid var(--line);border-radius:10px;padding:12px;
+    background:#fbfcfe;color:var(--ink);resize:none;overflow:hidden;
+    min-height:120px;
+  }
+  textarea:focus,.info-grid input:focus{outline:2px solid var(--accent);outline-offset:1px;background:#fff}
+  .count{text-align:right;font-size:.75rem;color:var(--muted);margin-top:2px}
+
+  /* 나의 생각 */
+  .think .stance{display:flex;flex-wrap:wrap;gap:10px;margin:6px 0 14px}
+  .think .stance label{
+    display:flex;align-items:center;gap:8px;border:1px solid var(--line);
+    padding:10px 14px;border-radius:999px;background:#fff;cursor:pointer;font-weight:600;
+    min-height:46px;
+  }
+  .think .stance input{width:20px;height:20px;accent-color:var(--accent)}
+  .think .stance label:has(input:checked){border-color:var(--accent);background:#eef2fb;color:var(--accent)}
+  .field-label{font-weight:700;margin:12px 0 6px;font-size:.95rem}
+  .think textarea{min-height:150px}
+
+  /* 하단 고정 버튼 */
+  .actionbar{
+    position:fixed;left:0;right:0;bottom:0;z-index:20;
+    background:rgba(255,255,255,.96);backdrop-filter:blur(6px);
+    border-top:1px solid var(--line);
+    padding:12px 16px calc(12px + env(safe-area-inset-bottom));
+    display:flex;gap:10px;align-items:center;justify-content:center;
+  }
+  .actionbar .status{font-size:.8rem;color:var(--muted);margin-right:auto}
+  .btn{
+    font:inherit;font-weight:700;border:none;border-radius:12px;
+    padding:14px 20px;min-height:52px;cursor:pointer;
+  }
+  .btn.primary{background:var(--accent);color:#fff;box-shadow:0 4px 12px rgba(45,91,214,.3)}
+  .btn.primary:active{transform:translateY(1px)}
+  .btn.ghost{background:#fff;border:1px solid var(--line);color:var(--muted)}
+  .tip{max-width:900px;margin:10px auto 0;font-size:.8rem;color:var(--muted);text-align:center}
+
+  /* ================= 인쇄(PDF) 레이아웃 ================= */
+  #printArea{display:none}
+
+  @media print{
+    @page{size:A4 portrait;margin:14mm}
+    body{background:#fff;font-size:11pt}
+    .app,.actionbar,.tip{display:none !important}
+    #printArea{display:block;color:#000}
+
+    #printArea h1{font-size:15pt;margin:0 0 4pt;border-bottom:2px solid #000;padding-bottom:4pt}
+    #printArea .pinfo{font-size:9.5pt;margin:0 0 10pt;color:#000}
+    table.wsheet{width:100%;border-collapse:collapse;table-layout:fixed}
+    table.wsheet th,table.wsheet td{border:1px solid #000;padding:6pt 7pt;vertical-align:top;word-break:break-word}
+    table.wsheet thead th{background:#eee;text-align:center;font-size:10pt}
+    table.wsheet col.c-div{width:19%}
+    table.wsheet col.c-txt{width:31%}
+    td.claim{font-weight:700;font-size:9.5pt;background:#f7f7f7}
+    td.ans{font-size:10pt;min-height:70pt;white-space:pre-wrap}
+    tr.arow{page-break-inside:avoid}
+
+    .mythink{margin-top:14pt;page-break-inside:avoid}
+    .mythink h2{font-size:13pt;border-bottom:1px solid #000;padding-bottom:3pt;margin:0 0 8pt}
+    .mythink .row{margin:0 0 6pt;font-size:10pt}
+    .mythink .box{border:1px solid #000;padding:7pt;min-height:60pt;white-space:pre-wrap;font-size:10pt;margin-bottom:10pt}
+    .mythink .mark{font-weight:700}
+  }
+</style>
+</head>
+<body>
+
+<div class="app">
+  <header class="top">
+    <h1>GMO – 유전자 조작 식품을 먹어도 돼?</h1>
+    <p>찬성과 반대의 근거를 정리한 뒤, 마지막에 나의 생각을 써 봅시다. 다 쓰면 아래 <b>‘PDF로 저장’</b> 버튼을 누르세요.</p>
+  </header>
+
+  <section class="card">
+    <h2>학생 정보</h2>
+    <div class="info-grid">
+      <label>학교<input id="school" type="text" autocomplete="off"></label>
+      <label>학년<input id="grade" type="text" inputmode="numeric" autocomplete="off"></label>
+      <label>반<input id="cls" type="text" inputmode="numeric" autocomplete="off"></label>
+      <label>번호<input id="num" type="text" inputmode="numeric" autocomplete="off"></label>
+      <label>이름<input id="stuName" type="text" autocomplete="off"></label>
+      <label>날짜<input id="date" type="date"></label>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>1. 찬성 · 반대 근거 정리</h2>
+    <p class="hint-lead">쟁점마다 찬성 쪽과 반대 쪽에서 내세울 수 있는 근거를 내 문장으로 정리해 보세요. ‘도움말’은 참고만 하고 그대로 옮겨 적지 않습니다.</p>
+    <div id="args"></div>
+  </section>
+
+  <section class="card think">
+    <h2>2. 나의 생각</h2>
+    <p class="hint-lead">위 근거들을 살펴본 뒤, 내 입장을 정하고 그렇게 생각하는 까닭을 씁니다.</p>
+
+    <div class="field-label">나의 입장</div>
+    <div class="stance">
+      <label><input type="radio" name="stance" value="찬성">찬성</label>
+      <label><input type="radio" name="stance" value="반대">반대</label>
+      <label><input type="radio" name="stance" value="아직 고민 중">아직 고민 중</label>
+    </div>
+
+    <div class="field-label">내가 그렇게 생각하는 까닭 (근거 2~3가지)</div>
+    <textarea id="myReason" placeholder="예) 나는 ○○이기 때문에 GMO에 대해 … 라고 생각한다. 그 까닭은 첫째 …, 둘째 …"></textarea>
+    <div class="count" data-for="myReason">0자</div>
+
+    <div class="field-label">이 주제를 공부하며 새롭게 알게 된 점이나 느낀 점</div>
+    <textarea id="myReflect" placeholder="공부하기 전과 후에 생각이 어떻게 달라졌는지, 더 알아보고 싶은 점은 무엇인지 써 보세요."></textarea>
+    <div class="count" data-for="myReflect">0자</div>
+  </section>
+</div>
+
+<div class="actionbar">
+  <span class="status" id="status">자동 저장됨</span>
+  <button class="btn ghost" id="clearBtn" type="button">전체 지우기</button>
+  <button class="btn primary" id="pdfBtn" type="button">PDF로 저장</button>
+</div>
+<p class="tip">안드로이드: 버튼을 누르면 인쇄 화면이 열립니다. <b>대상(프린터)</b>을 <b>‘PDF로 저장’</b>으로 바꾸고 저장하세요.</p>
+
+<!-- 인쇄용 학습지 (화면에는 보이지 않음) -->
+<div id="printArea"></div>
+
+<script>
+(function(){
+  "use strict";
+
+  var ARGS = [
+    {
+      topic:"안전성",
+      pro:{ claim:"유전자 조작 식품은 안전해",
+        hints:["과학적 심사와 독성·알레르기 검사를 거쳐 승인된다.",
+                "여러 나라와 국제기구가 안전하다고 평가했다.",
+                "오랜 기간 널리 먹어 왔지만 큰 문제가 보고되지 않았다."] },
+      con:{ claim:"유전자 조작 식품은 안전하지 않아",
+        hints:["오래 먹었을 때의 영향이 충분히 밝혀지지 않았다.",
+                "새로운 알레르기 반응을 일으킬 수 있다.",
+                "항생제 내성 유전자가 사용되기도 한다."] }
+    },
+    {
+      topic:"환경과 경제",
+      pro:{ claim:"유전자 조작 식품은 환경과 경제에 큰 이익을 줘",
+        hints:["농약·제초제 사용을 줄일 수 있다.",
+                "수확량이 늘어 농민의 소득이 오른다.",
+                "재배 비용과 노동력을 아낄 수 있다."] },
+      con:{ claim:"유전자 조작 식품은 자연과 생명의 질서를 파괴해",
+        hints:["재배 지역의 생물 다양성이 줄어든다.",
+                "약이 듣지 않는 잡초·해충(슈퍼잡초)이 생긴다.",
+                "꽃가루를 통해 주변 작물로 조작된 유전자가 퍼진다."] }
+    },
+    {
+      topic:"식량 문제",
+      pro:{ claim:"유전자 조작 식품은 식량문제를 해결할 수 있어",
+        hints:["가뭄·병충해에 강해 척박한 땅에서도 기를 수 있다.",
+                "수확량이 안정적으로 늘어난다.",
+                "영양을 강화한 작물(예: 황금쌀)을 만들 수 있다."] },
+      con:{ claim:"유전자 조작 식품은 식량문제를 해결해 줄 수 없어",
+        hints:["식량 부족은 생산량보다 분배와 빈곤의 문제다.",
+                "종자에 특허가 걸려 가난한 나라 농민의 부담이 커진다.",
+                "소수 대기업에 종자를 의존하게 된다."] }
+    },
+    {
+      topic:"먹거리 선택권",
+      pro:{ claim:"유전자 조작 식품은 먹거리 선택권을 침해하지 않아",
+        hints:["GMO 표시제가 있어 소비자가 구분해서 살 수 있다.",
+                "비(非)GMO·유기농 제품도 함께 팔린다."] },
+      con:{ claim:"유전자 조작 식품은 먹거리 선택권을 침해해",
+        hints:["표시 기준이 느슨해 모르고 먹게 되는 경우가 많다.",
+                "가공식품에 폭넓게 쓰여 피하기 어렵다.",
+                "소비자에게 충분한 정보가 주어지지 않는다."] }
+    }
+  ];
+
+  var KEY = "gmo-worksheet-v1";
+  var argsBox = document.getElementById("args");
+
+  // ----- 쟁점 카드 생성 -----
+  ARGS.forEach(function(a, i){
+    var card = document.createElement("div");
+    card.className = "card";
+    card.style.marginTop = "12px";
+    card.innerHTML =
+      '<span class="topic-tag">쟁점 ' + (i+1) + '. ' + a.topic + '</span>' +
+      '<div class="pair">' +
+        side("pro", i, a.pro) +
+        side("con", i, a.con) +
+      '</div>';
+    argsBox.appendChild(card);
+  });
+
+  function side(kind, i, data){
+    var id = kind + "-" + i;
+    var label = kind === "pro" ? "찬성" : "반대";
+    var lis = data.hints.map(function(h){ return "<li>" + esc(h) + "</li>"; }).join("");
+    return '' +
+      '<div class="side ' + kind + '">' +
+        '<div class="badge">' + label + '</div>' +
+        '<div class="claim">“' + esc(data.claim) + '”</div>' +
+        '<button type="button" class="help-btn" data-toggle="' + id + '-hint">도움말 보기</button>' +
+        '<ul class="hints" id="' + id + '-hint" hidden>' + lis + '</ul>' +
+        '<textarea id="' + id + '" placeholder="이 주장을 뒷받침하는 근거를 써 보세요."></textarea>' +
+        '<div class="count" data-for="' + id + '">0자</div>' +
+      '</div>';
+  }
+
+  // ----- 유틸 -----
+  function esc(s){ return String(s==null?"":s).replace(/[&<>"]/g,function(c){
+    return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]; }); }
+
+  function autogrow(el){ el.style.height = "auto"; el.style.height = (el.scrollHeight + 2) + "px"; }
+
+  function updateCount(el){
+    var c = document.querySelector('.count[data-for="' + el.id + '"]');
+    if(c) c.textContent = el.value.trim().length + "자";
+  }
+
+  // ----- 저장 / 복원 -----
+  function collect(){
+    var d = {};
+    document.querySelectorAll(".app input, .app textarea").forEach(function(el){
+      if(el.type === "radio"){ if(el.checked) d[el.name] = el.value; }
+      else d[el.id] = el.value;
+    });
+    return d;
+  }
+
+  function restore(d){
+    Object.keys(d).forEach(function(k){
+      var byId = document.getElementById(k);
+      if(byId){ byId.value = d[k]; return; }
+      var r = document.querySelector('input[name="' + k + '"][value="' + (window.CSS && CSS.escape ? CSS.escape(d[k]) : d[k]) + '"]');
+      if(r) r.checked = true;
+    });
+  }
+
+  var saveTimer;
+  function scheduleSave(){
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(function(){
+      try{
+        localStorage.setItem(KEY, JSON.stringify(collect()));
+        flashStatus("자동 저장됨 · " + new Date().toLocaleTimeString("ko-KR",{hour:"2-digit",minute:"2-digit"}));
+      }catch(e){ flashStatus("저장 공간을 사용할 수 없어요"); }
+    }, 400);
+  }
+  function flashStatus(t){ document.getElementById("status").textContent = t; }
+
+  // ----- 이벤트 -----
+  document.addEventListener("input", function(e){
+    var el = e.target;
+    if(el.tagName === "TEXTAREA"){ autogrow(el); updateCount(el); }
+    if(el.closest(".app")) scheduleSave();
+  });
+  document.addEventListener("change", function(e){
+    if(e.target.closest(".app")) scheduleSave();
+  });
+  document.addEventListener("click", function(e){
+    var btn = e.target.closest("[data-toggle]");
+    if(btn){
+      var ul = document.getElementById(btn.getAttribute("data-toggle"));
+      var open = !ul.hidden;
+      ul.hidden = open;
+      btn.textContent = open ? "도움말 보기" : "도움말 숨기기";
+    }
+  });
+
+  document.getElementById("clearBtn").addEventListener("click", function(){
+    if(!confirm("작성한 내용을 모두 지울까요? 되돌릴 수 없어요.")) return;
+    try{ localStorage.removeItem(KEY); }catch(e){}
+    document.querySelectorAll(".app input, .app textarea").forEach(function(el){
+      if(el.type === "radio") el.checked = false; else el.value = "";
+    });
+    document.querySelectorAll(".app textarea").forEach(function(t){ autogrow(t); updateCount(t); });
+    setToday();
+    flashStatus("모두 지웠어요");
+  });
+
+  document.getElementById("pdfBtn").addEventListener("click", function(){
+    var empty = [].slice.call(document.querySelectorAll(".app textarea")).filter(function(t){ return !t.value.trim(); }).length;
+    var noStance = !document.querySelector('input[name="stance"]:checked');
+    if((empty > 0 || noStance)){
+      var msg = "아직 완성되지 않았어요.";
+      if(empty > 0) msg += "\n· 비어 있는 칸 " + empty + "개";
+      if(noStance) msg += "\n· ‘나의 입장’ 선택 안 함";
+      msg += "\n\n그래도 PDF로 저장할까요?";
+      if(!confirm(msg)) return;
+    }
+    doPrint();
+  });
+
+  function doPrint(){
+    buildPrint();
+    var name = (document.getElementById("stuName").value || "학생").trim();
+    var prev = document.title;
+    document.title = "GMO토론학습지_" + name;
+    var restoreTitle = function(){ document.title = prev; window.removeEventListener("afterprint", restoreTitle); };
+    window.addEventListener("afterprint", restoreTitle);
+    setTimeout(function(){ window.print(); }, 60);
+  }
+
+  // Ctrl+P / 시스템 인쇄도 동일한 학습지가 나오도록
+  window.addEventListener("beforeprint", buildPrint);
+
+  function buildPrint(){
+    var v = function(id){ return (document.getElementById(id).value || "").trim(); };
+    var stanceEl = document.querySelector('input[name="stance"]:checked');
+    var stance = stanceEl ? stanceEl.value : "";
+
+    var pinfo = [
+      v("school") && (v("school")),
+      (v("grade") || v("cls") || v("num")) ? (v("grade") + "학년 " + v("cls") + "반 " + v("num") + "번") : "",
+      v("stuName") ? ("이름: " + v("stuName")) : "",
+      v("date") ? ("날짜: " + v("date")) : ""
+    ].filter(Boolean).join("　|　");
+
+    var rows = ARGS.map(function(a, i){
+      return '<tr class="arow">' +
+        '<td class="claim">' + esc(a.pro.claim) + '</td>' +
+        '<td class="ans">' + esc(v("pro-" + i)) + '</td>' +
+        '<td class="claim">' + esc(a.con.claim) + '</td>' +
+        '<td class="ans">' + esc(v("con-" + i)) + '</td>' +
+      '</tr>';
+    }).join("");
+
+    function mk(on){ return on ? "■" : "□"; }
+
+    document.getElementById("printArea").innerHTML =
+      '<h1>GMO – 유전자 조작 식품을 먹어도 돼?</h1>' +
+      '<div class="pinfo">' + (esc(pinfo) || "학교 __________　이름 __________　날짜 __________") + '</div>' +
+      '<table class="wsheet">' +
+        '<colgroup><col class="c-div"><col class="c-txt"><col class="c-div"><col class="c-txt"></colgroup>' +
+        '<thead>' +
+          '<tr><th colspan="2">찬성</th><th colspan="2">반대</th></tr>' +
+          '<tr><th>구분</th><th>내용</th><th>구분</th><th>내용</th></tr>' +
+        '</thead>' +
+        '<tbody>' + rows + '</tbody>' +
+      '</table>' +
+      '<section class="mythink">' +
+        '<h2>나의 생각</h2>' +
+        '<div class="row"><span class="mark">나의 입장:</span> ' +
+          mk(stance==="찬성") + ' 찬성　　' +
+          mk(stance==="반대") + ' 반대　　' +
+          mk(stance==="아직 고민 중") + ' 아직 고민 중</div>' +
+        '<div class="row"><span class="mark">내가 그렇게 생각하는 까닭</span></div>' +
+        '<div class="box">' + esc(v("myReason")) + '</div>' +
+        '<div class="row"><span class="mark">새롭게 알게 된 점 · 느낀 점</span></div>' +
+        '<div class="box">' + esc(v("myReflect")) + '</div>' +
+      '</section>';
+  }
+
+  // ----- 초기화 -----
+  function setToday(){
+    var el = document.getElementById("date");
+    if(!el.value){
+      var t = new Date();
+      el.value = t.getFullYear() + "-" +
+        String(t.getMonth()+1).padStart(2,"0") + "-" +
+        String(t.getDate()).padStart(2,"0");
+    }
+  }
+
+  try{
+    var saved = localStorage.getItem(KEY);
+    if(saved) restore(JSON.parse(saved));
+  }catch(e){}
+  setToday();
+  document.querySelectorAll(".app textarea").forEach(function(t){ autogrow(t); updateCount(t); });
+})();
+</script>
+</body>
+</html>

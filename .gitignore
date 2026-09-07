@@ -1,0 +1,14 @@
+# OMC / 도구 상태
+.omc/
+
+# 의존성
+node_modules/
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# 에디터
+.vscode/
+.idea/
