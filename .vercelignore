@@ -1,0 +1,7 @@
+# 사이트(gmostudy.vercel.app)에 올리지 않는 파일 — 선생님용 자료·서버 코드·원본 자료
+README.md
+SETUP-스프레드시트.md
+apps-script/
+server.js
+*.pdf
+.omc/
